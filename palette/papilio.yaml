@@ -47,8 +47,8 @@ palette:
 
   # Cores de identidade
   crimson: "#e04a4d"    # a cor-assinatura (olhos / pontas do cabelo); clareada da âncora para atingir 4.5:1 sobre bg0
-  blossom: "#e8949a"    # rosa das flores de ameixeira
-  gold: "#cfa14f"       # dourado dos adornos
+  blossom: "#e89a94"    # rosa das flores de ameixeira (matiz da flor real, clareado para legibilidade)
+  gold: "#c49a5d"       # dourado dos adornos, puxado ao bronze antigo da âncora
   ghost: "#8ecfdf"      # azul-fantasma do Boo Tao
   ember: "#e0915a"      # laranja-brasa (pyro)
 
