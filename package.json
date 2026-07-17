@@ -27,7 +27,8 @@
     ]
   },
   "scripts": {
-    "build": "tsx src/generate.ts",
+    "check": "tsx scripts/check_contrast.ts",
+    "build": "npm run check && tsx src/generate.ts",
     "watch": "tsx watch src/generate.ts"
   },
   "devDependencies": {
