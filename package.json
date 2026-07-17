@@ -5,6 +5,7 @@
   "version": "0.1.0",
   "publisher": "muowl",
   "license": "MIT",
+  "icon": "assets/logo.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/Muowl/papilio-theme.git"
@@ -37,6 +38,7 @@
     "watch": "tsx watch src/generate.ts"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.10.0",
     "js-yaml": "^4.1.0",

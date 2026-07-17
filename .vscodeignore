@@ -13,3 +13,4 @@ scripts/**
 src/**
 tsconfig.json
 *.vsix
+assets/*.svg

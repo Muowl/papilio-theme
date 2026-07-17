@@ -8,7 +8,7 @@ primeiro alvo; a arquitetura já prevê outras plataformas.
 `palette/papilio.yaml` é a **única fonte da verdade**. O fluxo é:
 
 ```
-palette/papilio.yaml  →  src/generate.ts  →  themes/*.json (e futuros alvos)
+palette/papilio.yaml  →  src/generate.ts  →  themes/*.json + assets/logo.* (e futuros alvos)
 ```
 
 - `anchors`: cores brutas da personagem (referência, não consumidas por geradores)
@@ -18,7 +18,9 @@ palette/papilio.yaml  →  src/generate.ts  →  themes/*.json (e futuros alvos)
 **Regras invioláveis:**
 1. Nenhum gerador pode conter hex hardcoded. Toda cor entra primeiro em `palette:`.
 2. Decisão do tipo "strings agora são douradas" muda em `roles:`, nunca no gerador.
-3. Arquivos em `themes/` são gerados — nunca editar à mão.
+3. Arquivos em `themes/` e `assets/` são gerados — nunca editar à mão.
+   (A logo — o fantasminha Papilio — vive em `src/generators/logo.ts` e
+   também tira as cores da palette.)
 
 ## Comandos
 
