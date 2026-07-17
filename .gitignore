@@ -1,2 +1,7 @@
 node_modules/
 *.vsix
+
+# Artes de referência (oficiais) ficam só na máquina local —
+# projeto fan-made não pode redistribuí-las (ver CLAUDE.md).
+references/*
+!references/.gitkeep
