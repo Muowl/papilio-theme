@@ -61,7 +61,7 @@ As cores extraídas alimentam `anchors:` no YAML. A passagem de âncora para
 ## Roadmap
 
 - [x] Fase 1 — Gerador VSCode funcional (workbench + tokenColors + semantic)
-- [ ] Fase 2 — Refinar âncoras com imagens reais em `references/` + polir
+- [x] Fase 2 — Refinar âncoras com imagens reais em `references/` + polir
       contraste (criar `scripts/check_contrast.ts` que valida razões WCAG
       de cada role de sintaxe contra bg0 e falha o build se degradar)
 - [ ] Fase 3 — Variante "Papilio Blood Blossom" (mais saturada, para quem quer drama)
