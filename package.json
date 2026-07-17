@@ -5,6 +5,10 @@
   "version": "0.1.0",
   "publisher": "muowl",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Muowl/papilio-theme.git"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -27,6 +31,7 @@
     ]
   },
   "scripts": {
+    "vscode:prepublish": "npm run build",
     "check": "tsx scripts/check_contrast.ts",
     "build": "npm run check && tsx src/generate.ts",
     "watch": "tsx watch src/generate.ts"

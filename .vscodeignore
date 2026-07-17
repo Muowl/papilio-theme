@@ -1,0 +1,15 @@
+# O vsix de um tema só precisa de themes/ + package.json + README + LICENSE.
+# references/ é o mais importante aqui: artes oficiais NUNCA podem ser
+# redistribuídas no pacote (ver CLAUDE.md).
+.git/**
+.gitignore
+.vscodeignore
+CLAUDE.md
+node_modules/**
+package-lock.json
+palette/**
+references/**
+scripts/**
+src/**
+tsconfig.json
+*.vsix
