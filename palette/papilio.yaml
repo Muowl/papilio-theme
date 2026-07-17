@@ -18,13 +18,14 @@ meta:
 # ------------------------------------------------------------
 anchors:
   coat: "#241a19"        # casaco marrom quase preto
-  hair-ink: "#3b2a28"    # castanho-escuro do cabelo
-  hair-tip: "#c3423f"    # pontas carmesim do cabelo
-  eyes: "#d9474a"        # olhos vermelhos (pupila em forma de flor)
-  blossom: "#e8949a"     # flores de ameixeira do chapéu
-  gold-trim: "#cfa14f"   # detalhes dourados do chapéu e casaco
-  ghost: "#9fd6e3"       # Boo Tao / chamas espirituais azul-pálidas
-  ember: "#e0915a"       # pyro / brasas
+  hair-ink: "#3d2c2e"    # castanho-escuro do cabelo, com leve tom ameixa
+  hair-tip: "#a34b42"    # pontas castanho-avermelhadas do cabelo
+  eyes: "#de4f35"        # olhos vermelho-fogo (pupila em forma de flor)
+  blossom: "#c93a30"     # flores de ameixeira do chapéu (vermelho vivo)
+  gold-trim: "#b8926a"   # dourado antigo/bronze do chapéu e casaco
+  ghost: "#9fd6e3"       # chamas espirituais do kit (VFX em jogo; sem fonte nas imagens de referência)
+  boo-white: "#fdf0f2"   # corpo branco-rosado do Boo Tao nas artes oficiais
+  ember: "#e0915a"       # pyro / brasas (validada pelo namecard)
   paper: "#ece0d1"       # off-white quente (pele / talismãs)
 
 # ------------------------------------------------------------
