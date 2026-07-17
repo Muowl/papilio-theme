@@ -1,0 +1,88 @@
+# ============================================================
+# FONTE DA VERDADE do tema Hu Tao.
+# Todos os geradores (VSCode, terminal, etc.) leem SÓ este arquivo.
+# Nenhum gerador pode conter hex hardcoded.
+# ============================================================
+
+meta:
+  name: "Papilio"
+  slug: "papilio"
+  variant: "dark"
+  author: "muowl"
+  description: "Tema escuro inspirado na paleta da Hu Tao (Genshin Impact)."
+
+# ------------------------------------------------------------
+# ÂNCORAS: cores brutas da personagem, para referência e curadoria.
+# NÃO são consumidas pelos geradores — são a matéria-prima.
+# Refine-as rodando scripts/extract_colors.py nas imagens em references/.
+# ------------------------------------------------------------
+anchors:
+  coat: "#241a19"        # casaco marrom quase preto
+  hair-ink: "#3b2a28"    # castanho-escuro do cabelo
+  hair-tip: "#c3423f"    # pontas carmesim do cabelo
+  eyes: "#d9474a"        # olhos vermelhos (pupila em forma de flor)
+  blossom: "#e8949a"     # flores de ameixeira do chapéu
+  gold-trim: "#cfa14f"   # detalhes dourados do chapéu e casaco
+  ghost: "#9fd6e3"       # Boo Tao / chamas espirituais azul-pálidas
+  ember: "#e0915a"       # pyro / brasas
+  paper: "#ece0d1"       # off-white quente (pele / talismãs)
+
+# ------------------------------------------------------------
+# PALETA: tokens nomeados que os geradores enxergam.
+# Derivada das âncoras, mas ajustada para legibilidade em tela.
+# ------------------------------------------------------------
+palette:
+  # Fundos e estrutura
+  bg0: "#191313"        # fundo do editor
+  bg1: "#211918"        # sidebar, painéis
+  bg2: "#2d2120"        # hover, item ativo em listas
+  bg3: "#3a2b28"        # bordas, separadores
+  selection: "#4a2f2d"  # seleção de texto
+
+  # Texto
+  fg0: "#ece0d1"        # texto principal
+  fg1: "#b9a79c"        # texto secundário, operadores
+  muted: "#7d6862"      # comentários, texto desabilitado
+
+  # Cores de identidade
+  crimson: "#d9474a"    # a cor-assinatura (olhos / pontas do cabelo)
+  blossom: "#e8949a"    # rosa das flores de ameixeira
+  gold: "#cfa14f"       # dourado dos adornos
+  ghost: "#8ecfdf"      # azul-fantasma do Boo Tao
+  ember: "#e0915a"      # laranja-brasa (pyro)
+
+  # Estados (diagnósticos, git, diffs)
+  error: "#f2493b"
+  warning: "#e3a94f"
+  info: "#8ecfdf"
+  success: "#7fae7a"    # jade discreto — Hu Tao não tem verde, mas diffs precisam
+
+  # Diversos
+  cursor: "#d9474a"
+
+# ------------------------------------------------------------
+# ROLES: mapeamento semântico. Valores referenciam nomes da paleta.
+# É AQUI que se decide "keyword é carmesim", não no gerador.
+# ------------------------------------------------------------
+roles:
+  syntax:
+    keyword: crimson      # if, return, const, import
+    string: blossom
+    function: ghost       # o azul do Boo Tao destaca chamadas
+    number: gold
+    constant: gold
+    type: ember           # classes, interfaces, tipos
+    variable: fg0
+    property: fg0
+    parameter: fg0
+    comment: muted
+    operator: fg1
+    punctuation: fg1
+    tag: crimson          # tags HTML/JSX
+    attribute: gold       # atributos HTML/JSX
+    regexp: ember
+    escape: ember
+
+  ui:
+    accent: crimson       # badges, foco, statusbar highlights
+    link: ghost

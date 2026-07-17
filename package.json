@@ -1,0 +1,40 @@
+{
+  "name": "papilio-theme",
+  "displayName": "Papilio",
+  "description": "Tema escuro inspirado na paleta da Hu Tao (Genshin Impact). Projeto fan-made, sem afiliação com HoYoverse.",
+  "version": "0.1.0",
+  "publisher": "muowl",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Themes"
+  ],
+  "keywords": [
+    "theme",
+    "dark",
+    "papilio",
+    "crimson"
+  ],
+  "contributes": {
+    "themes": [
+      {
+        "label": "Papilio",
+        "uiTheme": "vs-dark",
+        "path": "./themes/papilio-color-theme.json"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "tsx src/generate.ts",
+    "watch": "tsx watch src/generate.ts"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.10.0",
+    "js-yaml": "^4.1.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}
