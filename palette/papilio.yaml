@@ -45,7 +45,7 @@ palette:
   muted: "#7d6862"      # comentários, texto desabilitado
 
   # Cores de identidade
-  crimson: "#d9474a"    # a cor-assinatura (olhos / pontas do cabelo)
+  crimson: "#e04a4d"    # a cor-assinatura (olhos / pontas do cabelo); clareada da âncora para atingir 4.5:1 sobre bg0
   blossom: "#e8949a"    # rosa das flores de ameixeira
   gold: "#cfa14f"       # dourado dos adornos
   ghost: "#8ecfdf"      # azul-fantasma do Boo Tao
@@ -58,7 +58,7 @@ palette:
   success: "#7fae7a"    # jade discreto — Hu Tao não tem verde, mas diffs precisam
 
   # Diversos
-  cursor: "#d9474a"
+  cursor: "#e04a4d"     # acompanha crimson
 
 # ------------------------------------------------------------
 # ROLES: mapeamento semântico. Valores referenciam nomes da paleta.
