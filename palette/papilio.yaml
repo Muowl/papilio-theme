@@ -27,6 +27,8 @@ anchors:
   boo-white: "#fdf0f2"   # corpo branco-rosado do Boo Tao nas artes oficiais
   ember: "#e0915a"       # pyro / brasas (validada pelo namecard)
   paper: "#ece0d1"       # off-white quente (pele / talismãs)
+  ribbon: "#362b3e"      # laço violeta do chapéu (hue 288 — família fria dominante da arte)
+  night-sky: "#262b4c"   # céu noturno atrás dela (hue 224 — o outro frio real)
 
 # ------------------------------------------------------------
 # PALETA: tokens nomeados que os geradores enxergam.
@@ -51,6 +53,8 @@ palette:
   gold: "#c49a5d"       # dourado dos adornos, puxado ao bronze antigo da âncora
   ghost: "#8ecfdf"      # azul-fantasma do Boo Tao
   ember: "#e0915a"      # laranja-brasa (pyro)
+  plum: "#c08fcc"       # violeta do laço do chapéu e das sombras ameixa do cabelo (hue 288 da arte)
+  dusk: "#7991d1"       # índigo do céu noturno da arte oficial (hue 224)
 
   # Estados (diagnósticos, git, diffs)
   error: "#f2493b"
@@ -70,8 +74,8 @@ roles:
     keyword: crimson      # if, return, const, import
     string: blossom
     function: ghost       # o azul do Boo Tao destaca chamadas
-    number: gold
-    constant: gold
+    number: plum          # violeta separa números de atributos (antes ambos dourados)
+    constant: plum        # constantes acompanham números, como manda a convenção
     type: ember           # classes, interfaces, tipos
     variable: fg0
     property: fg0
@@ -83,7 +87,31 @@ roles:
     attribute: gold       # atributos HTML/JSX
     regexp: ember
     escape: ember
+    builtin: crimson      # this, self, super — palavra-chave disfarçada de variável
+    namespace: ember      # namespaces são parentes de tipo
+    # Decorator em plum, não em gold: gold e ember são quase o mesmo matiz sob
+    # deuteranopia, e @decorator costuma vir colado no nome da classe.
+    decorator: plum
+    interpolation: ember  # as marcas ${ } dentro de template strings
+    inserted: success     # markup de diff/patch
+    deleted: error
+    changed: gold
+    quote: muted          # citações de markdown (secundário de propósito)
 
   ui:
     accent: crimson       # badges, foco, statusbar highlights
     link: ghost
+    terminal-bg: bg0      # terminal usa a tela do editor: bg1 derrubava o ANSI red para 4.32:1
+
+  # Os 16 slots ANSI. Só as 8 bases são decididas aqui: o gerador deriva
+  # cada "bright" clareando a base (ver lighten() em src/lib/palette.ts),
+  # o que garante 16 valores distintos com uma regra só.
+  terminal:
+    black: bg3
+    red: crimson
+    green: success
+    yellow: gold
+    blue: dusk            # antes era ghost — azul e ciano eram a mesma cor
+    magenta: plum
+    cyan: ghost
+    white: fg1

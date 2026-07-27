@@ -13,14 +13,21 @@ palette/papilio.yaml  →  src/generate.ts  →  themes/*.json + assets/logo.* (
 
 - `anchors`: cores brutas da personagem (referência, não consumidas por geradores)
 - `palette`: tokens nomeados com hex final, ajustados para tela
-- `roles`: mapeamento semântico (ex: `keyword: crimson`) — decisões de design vivem aqui
+- `roles`: mapeamento semântico — decisões de design vivem aqui. Três grupos:
+  - `syntax` (ex: `keyword: crimson`) — validado contra `bg0` pelo check de contraste
+  - `ui` (`accent`, `link`, `terminal-bg`)
+  - `terminal` — as 8 bases ANSI; os 8 `bright` são derivados pelo gerador
 
 **Regras invioláveis:**
 1. Nenhum gerador pode conter hex hardcoded. Toda cor entra primeiro em `palette:`.
+   Derivar de um token da palette é permitido — `alpha()` e `lighten()` em
+   `src/lib/palette.ts` existem para isso e não contam como hex hardcoded.
 2. Decisão do tipo "strings agora são douradas" muda em `roles:`, nunca no gerador.
 3. Arquivos em `themes/` e `assets/` são gerados — nunca editar à mão.
    (A logo — o fantasminha Papilio — vive em `src/generators/logo.ts` e
    também tira as cores da palette.)
+4. Constante compartilhada entre gerador e validador mora em `src/lib/palette.ts`
+   (ex: `ANSI_BRIGHT`). Duplicar valor nos dois lados já causou divergência.
 
 ## Comandos
 
@@ -58,7 +65,20 @@ As cores extraídas alimentam `anchors:` no YAML. A passagem de âncora para
 - `ghost` (azul do Boo Tao) é o contraponto frio — funções e links.
 - Contraste alvo: cores de sintaxe legíveis sobre `bg0` em sessões longas
   (mirar ~4.5:1; comentários podem ficar abaixo de propósito, ~3:1).
-- Itálico apenas em: comentários, parâmetros, atributos HTML.
+  `npm run check` valida sintaxe, terminal e pares de UI, e falha o build.
+- Itálico apenas em: comentários, parâmetros, atributos HTML. Cuidado: seletores
+  CSS de classe/id também são `entity.other.attribute-name` — a regra de CSS
+  precisa de `fontStyle: ""` explícito para não herdar o itálico.
+- Os 16 slots ANSI têm de ser todos distintos (o check falha se repetirem).
+  Azul e ciano em cores diferentes não é preciosismo: `git diff`, `ls` e TUIs
+  dependem disso.
+- A paleta é quase toda quente (hue 0-40). `ghost`, `plum` e `dusk` são os
+  contrapontos frios que dão separação de matiz à sintaxe — inclusive para quem
+  tem deficiência de visão de cor vermelho-verde. Não colapsar tudo em vermelho.
+- `gold` (hue 36) e `ember` (hue 25) viram a mesma cor sob deuteranopia. Podem
+  coexistir só quando algo além da cor separa os dois: hoje `attribute` (gold) e
+  `type` (ember) convivem em HTML/JSX porque atributo é itálico. Ao criar um role
+  novo, não pareie gold com ember sem um segundo canal de distinção.
 
 ## Roadmap
 

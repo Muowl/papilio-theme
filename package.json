@@ -1,14 +1,22 @@
 {
   "name": "papilio-theme",
   "displayName": "Papilio",
-  "description": "Tema escuro inspirado na paleta da Hu Tao (Genshin Impact). Projeto fan-made, sem afiliação com HoYoverse.",
+  "description": "A warm dark theme built on deep red-brown, crimson and antique gold. Fan-made and unaffiliated with HoYoverse; inspired by Hu Tao's palette from Genshin Impact.",
   "version": "0.1.0",
   "publisher": "muowl",
   "license": "MIT",
   "icon": "assets/logo.png",
+  "galleryBanner": {
+    "color": "#191313",
+    "theme": "dark"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/Muowl/papilio-theme.git"
+  },
+  "homepage": "https://github.com/Muowl/papilio-theme#readme",
+  "bugs": {
+    "url": "https://github.com/Muowl/papilio-theme/issues"
   },
   "engines": {
     "vscode": "^1.85.0"
@@ -17,10 +25,11 @@
     "Themes"
   ],
   "keywords": [
-    "theme",
-    "dark",
-    "papilio",
-    "crimson"
+    "dark theme",
+    "warm",
+    "brown",
+    "crimson",
+    "italic"
   ],
   "contributes": {
     "themes": [
