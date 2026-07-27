@@ -11,6 +11,7 @@
 // ============================================================
 
 import { join } from "node:path";
+import { readFileSync } from "node:fs";
 import { loadPalette, lighten, ansiBright } from "../src/lib/palette";
 
 const ALVO_PADRAO = 4.5;
@@ -139,6 +140,38 @@ tabela(`pares de UI:`, [
   linha("descrição do peek view", c.muted, c.bg2, 3.0),
   linha("descrição em lista focada", c.muted, c.bg2, 3.0),
 ]);
+
+// 4. Cópias manuais de hex fora do YAML.
+// O gerador é limpo, mas README e package.json repetem cores à mão e nada
+// impedia que envelhecessem — foi exatamente o que aconteceu quando a paleta
+// mudou. Estes dois checks são baratos e fecham a porta.
+const raiz = join(import.meta.dirname, "..");
+
+const readme = readFileSync(join(raiz, "README.md"), "utf8");
+const bloco = readme.match(/<!-- palette:start[\s\S]*?<!-- palette:end -->/);
+if (!bloco) {
+  console.error("\n✘ README.md: bloco palette:start/palette:end não encontrado");
+  falhas++;
+} else {
+  const linhasReadme = [...bloco[0].matchAll(/^\|\s*`(\w[\w-]*)`\s*\|\s*`(#[0-9a-fA-F]{6})`/gm)];
+  const divergentes = linhasReadme
+    .filter(([, token, hex]) => c[token] && c[token].toLowerCase() !== hex.toLowerCase())
+    .map(([, token, hex]) => `${token}: README diz ${hex}, palette diz ${c[token]}`);
+  const inexistentes = linhasReadme
+    .filter(([, token]) => !c[token])
+    .map(([, token]) => `${token}: está no README mas não existe na palette`);
+  for (const msg of [...divergentes, ...inexistentes]) {
+    console.error(`✘ README.md — ${msg}`);
+    falhas++;
+  }
+}
+
+const pkg = JSON.parse(readFileSync(join(raiz, "package.json"), "utf8"));
+const banner = pkg.galleryBanner?.color?.toLowerCase();
+if (banner && banner !== c.bg0.toLowerCase()) {
+  console.error(`✘ package.json — galleryBanner.color ${banner} ≠ bg0 ${c.bg0}`);
+  falhas++;
+}
 
 if (falhas > 0) {
   console.error(`\n✘ ${falhas} problema(s). Ajuste palette/papilio.yaml.`);

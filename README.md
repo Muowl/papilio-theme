@@ -26,23 +26,32 @@ pick it with **Preferences: Color Theme** (`Ctrl+K Ctrl+T`).
   its base.
 - **Restrained italics.** Comments, parameters and HTML attributes only. Nothing
   else tilts.
-- **Full workbench coverage.** ~260 UI colours are set, so VS Code's stock blues
-  don't leak into the warm palette in the command palette, find widget, progress
-  bars or menus.
+- **Full workbench coverage.** ~330 UI colours are set, so VS Code's stock blues
+  don't leak into the warm palette — including merge conflicts and the
+  IntelliSense icons, which fall back to teal and purple when left unset.
+- **Designed for colour blindness.** Every syntax pair is separated in
+  lightness, not only in hue: red-green deficiency collapses the warm hues onto
+  one axis, so lightness is what survives. No pair of syntax colours sits closer
+  than ΔE 8 under simulated protanopia or deuteranopia.
 
 ## Palette
+
+<!-- palette:start — gerado por `npm run build`; não edite à mão -->
 
 | token | hex | role |
 |---|---|---|
 | `bg0` | `#191313` | editor background |
 | `fg0` | `#ece0d1` | primary text |
-| `crimson` | `#e04a4d` | keywords, tags, accent |
-| `blossom` | `#e89a94` | strings |
-| `ghost` | `#8ecfdf` | functions, links |
-| `gold` | `#c49a5d` | attributes, modified state |
-| `ember` | `#e0915a` | types, regex, escapes |
-| `plum` | `#c08fcc` | numbers, constants, decorators |
-| `dusk` | `#7991d1` | terminal blue |
+| `crimson` | `#df494d` | keywords, tags, accent |
+| `blossom` | `#ffaea9` | strings |
+| `ghost` | `#90d0e1` | functions, links |
+| `ember` | `#f0a068` | types, regex, escapes |
+| `plum` | `#c796d3` | numbers, constants, decorators |
+| `dusk` | `#6d84c4` | attributes, terminal blue |
+| `gold` | `#c49a5d` | modified state, terminal yellow |
+| `muted` | `#897987` | comments |
+
+<!-- palette:end -->
 
 ## Contributing
 

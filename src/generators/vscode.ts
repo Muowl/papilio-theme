@@ -117,6 +117,33 @@ export function generateVscodeTheme(p: PaletteFile): object {
       "editorOverviewRuler.currentContentForeground": alpha(c.crimson, 0.6),
       "editorOverviewRuler.incomingContentForeground": alpha(c.dusk, 0.6),
       "editorOverviewRuler.commonContentForeground": alpha(c.muted, 0.6),
+
+      // Painel de variáveis do debugger: os defaults são literalmente as cores
+      // do Dark+ (#c586c0 roxo, #4e94ce azul, #b5cea8 verde).
+      "debugTokenExpression.name": syn("property"),
+      "debugTokenExpression.value": c.fg1,
+      "debugTokenExpression.string": syn("string"),
+      "debugTokenExpression.number": syn("number"),
+      "debugTokenExpression.boolean": syn("constant"),
+      "debugTokenExpression.error": c.error,
+      "debugConsole.infoForeground": c.info,
+      "debugConsole.warningForeground": c.warning,
+      "debugConsole.errorForeground": c.error,
+      "debugConsole.sourceForeground": c.muted,
+      "debugConsoleInputIcon.foreground": ui("accent"),
+      // Shell integration é padrão em pwsh e bash; o default é um teal #1B81A8
+      // na gutter do terminal.
+      "terminalCommandDecoration.defaultBackground": c.muted,
+      "terminalCommandDecoration.successBackground": c.success,
+      "terminalCommandDecoration.errorBackground": c.error,
+      "minimap.errorHighlight": alpha(c.error, 0.7),
+      "minimap.warningHighlight": alpha(c.warning, 0.7),
+      "list.dropBackground": alpha(c.bg2, 0.8),
+      "welcomePage.tileBackground": c.bg1,
+      "welcomePage.tileHoverBackground": c.bg2,
+      "welcomePage.tileBorder": c.bg3,
+      "welcomePage.progress.background": c.bg3,
+      "welcomePage.progress.foreground": ui("accent"),
       "mergeEditor.change.background": alpha(c.gold, 0.14),
       "mergeEditor.change.word.background": alpha(c.gold, 0.3),
       "mergeEditor.conflict.unhandledUnfocused.border": alpha(c.error, 0.5),
@@ -393,6 +420,9 @@ export function generateVscodeTheme(p: PaletteFile): object {
       "gitDecoration.conflictingResourceForeground": c.ember,
       "gitDecoration.stageModifiedResourceForeground": c.gold,
       "gitDecoration.stageDeletedResourceForeground": c.error,
+      // Defaults #73C991 (verde do Dark+) e #8db9e2 (azul frio).
+      "gitDecoration.renamedResourceForeground": c.success,
+      "gitDecoration.submoduleResourceForeground": c.plum,
 
       // Notebooks
       "notebook.cellEditorBackground": c.bg0,
