@@ -11,13 +11,18 @@
 // ============================================================
 
 import { join } from "node:path";
-import { loadPalette, lighten, ANSI_BRIGHT } from "../src/lib/palette";
+import { loadPalette, lighten, ansiBright } from "../src/lib/palette";
 
 const ALVO_PADRAO = 4.5;
 const ALVOS_ESPECIAIS: Record<string, number> = {
   comment: 3.0, // rebaixado de propósito — ver CLAUDE.md
   quote: 3.0,   // citação de markdown é secundária, mesma lógica do comentário
   black: 1.0,   // ANSI black é uma chapa de fundo, não texto
+  // bright-black precisa de alvo PRÓPRIO. Ele não é chapa: é o cinza que CLIs
+  // usam para texto esmaecido. Antes o alvo era calculado uma vez por slot e
+  // reaproveitado na linha do bright, então bright-black herdava a isenção do
+  // black e passava com 2.76:1 reportando ✔.
+  "bright-black": 3.0,
 };
 
 /** Luminância relativa WCAG (sRGB linearizado). */
@@ -80,9 +85,18 @@ tabela(
 // 2. Terminal contra o próprio fundo — inclui os bright derivados
 const linhasTerm: string[][] = [];
 for (const [slot, token] of Object.entries(p.roles.terminal)) {
-  const alvo = ALVOS_ESPECIAIS[slot] ?? ALVO_PADRAO;
-  linhasTerm.push(linha(`${slot} (${token})`, c[token], termBg, alvo));
-  linhasTerm.push(linha(`bright-${slot}`, lighten(c[token], ANSI_BRIGHT), termBg, alvo));
+  linhasTerm.push(
+    linha(`${slot} (${token})`, c[token], termBg, ALVOS_ESPECIAIS[slot] ?? ALVO_PADRAO)
+  );
+  // alvo resolvido de novo para o bright: os dois têm exigências diferentes
+  linhasTerm.push(
+    linha(
+      `bright-${slot}`,
+      ansiBright(p, slot),
+      termBg,
+      ALVOS_ESPECIAIS[`bright-${slot}`] ?? ALVO_PADRAO
+    )
+  );
 }
 tabela(`roles.terminal contra ${p.roles.ui["terminal-bg"]} (${termBg}):`, linhasTerm);
 
@@ -91,7 +105,7 @@ tabela(`roles.terminal contra ${p.roles.ui["terminal-bg"]} (${termBg}):`, linhas
 const ansi = new Map<string, string>();
 for (const [slot, token] of Object.entries(p.roles.terminal)) {
   ansi.set(slot, c[token]);
-  ansi.set(`bright-${slot}`, lighten(c[token], ANSI_BRIGHT));
+  ansi.set(`bright-${slot}`, ansiBright(p, slot));
 }
 const vistos = new Map<string, string>();
 for (const [slot, hex] of ansi) {
@@ -120,6 +134,10 @@ tabela(`pares de UI:`, [
   linha("title bar inativa", c.muted, c.bg1, 3.0),
   linha("placeholder do input", lighten(c.muted, 0.12), c.bg2, 3.0),
   linha("texto sobre seleção", c.fg0, c.selection, ALVO_PADRAO),
+  // Consumidores de `muted` sobre bg2 que passavam despercebidos por não
+  // estarem nesta tabela — o gate só enxerga o que está listado aqui.
+  linha("descrição do peek view", c.muted, c.bg2, 3.0),
+  linha("descrição em lista focada", c.muted, c.bg2, 3.0),
 ]);
 
 if (falhas > 0) {

@@ -15,10 +15,15 @@ export interface PaletteFile {
     syntax: Record<string, string>;
     ui: Record<string, string>;
     terminal: Record<string, string>;
+    /**
+     * Exceções à regra "bright = base clareada". Só existe porque um slot
+     * precisou fugir dela; ver o comentário no YAML.
+     */
+    "terminal-bright"?: Record<string, string>;
   };
 }
 
-export type RoleGroup = keyof PaletteFile["roles"];
+export type RoleGroup = "syntax" | "ui" | "terminal";
 
 const GRUPOS: readonly RoleGroup[] = ["syntax", "ui", "terminal"];
 
@@ -53,7 +58,29 @@ export function loadPalette(path: string): PaletteFile {
     }
   }
 
+  for (const [slot, token] of Object.entries(data.roles["terminal-bright"] ?? {})) {
+    if (!(slot in data.roles.terminal)) {
+      throw new Error(`roles.terminal-bright.${slot} não é um slot ANSI`);
+    }
+    if (!(token in data.palette)) {
+      throw new Error(
+        `roles.terminal-bright.${slot} referencia "${token}", que não existe na palette`
+      );
+    }
+  }
+
   return data;
+}
+
+/**
+ * A cor final de um slot ANSI "bright": normalmente a base clareada, mas o
+ * YAML pode apontar um token direto para os casos em que a regra não serve.
+ * Gerador e validador chamam esta função — é o que impede os dois de divergirem.
+ */
+export function ansiBright(p: PaletteFile, slot: string): string {
+  const override = p.roles["terminal-bright"]?.[slot];
+  if (override) return p.palette[override];
+  return lighten(resolve(p, "terminal", slot), ANSI_BRIGHT);
 }
 
 /** Resolve um role (ex: "syntax.keyword") para o hex final. */
@@ -65,8 +92,14 @@ export function resolve(p: PaletteFile, group: RoleGroup, role: string): string 
 
 /** Hex + alpha (0-1) -> #rrggbbaa. Útil para overlays do workbench. */
 export function alpha(hex: string, a: number): string {
-  const byte = Math.round(a * 255).toString(16).padStart(2, "0");
+  if (!HEX_RE.test(hex)) throw new Error(`alpha(): "${hex}" não é #rrggbb`);
+  const byte = Math.round(clamp01(a) * 255).toString(16).padStart(2, "0");
   return hex + byte;
+}
+
+/** Prende um número em [0,1]. Sem isto, alpha e lighten emitem hex inválido. */
+function clamp01(n: number): number {
+  return Math.max(0, Math.min(1, n));
 }
 
 /**
@@ -76,9 +109,11 @@ export function alpha(hex: string, a: number): string {
  * Usado para os "bright" do terminal e para microajustes de UI.
  */
 export function lighten(hex: string, amount: number): string {
+  if (!HEX_RE.test(hex)) throw new Error(`lighten(): "${hex}" não é #rrggbb`);
+  const a = clamp01(amount);
   const canais = [1, 3, 5].map((i) => {
     const c = parseInt(hex.slice(i, i + 2), 16);
-    return Math.round(c + (255 - c) * amount);
+    return Math.round(c + (255 - c) * a);
   });
   return "#" + canais.map((c) => c.toString(16).padStart(2, "0")).join("");
 }

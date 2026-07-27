@@ -42,28 +42,49 @@ palette:
   bg3: "#3a2b28"        # bordas, separadores
   selection: "#4a2f2d"  # seleção de texto
 
+  # ESCADA DE LUMINOSIDADE
+  # A ordem dos tokens abaixo é a ordem de L em OKLCH, do que recua ao que é
+  # conteúdo. Isso não é estética: daltonismo vermelho-verde colapsa os matizes
+  # 20–90° num eixo só, e sobra apenas a luminosidade para diferenciar. Antes
+  # desta escada, seis tokens dividiam a faixa L 0.70–0.77 e o par tipo × atributo
+  # media ΔE 0.6 sob protanopia — literalmente a mesma cor.
+  # Ao mexer em qualquer valor, preserve o matiz (é ele que carrega a personagem)
+  # e mantenha o degrau de L.
+
   # Texto
-  fg0: "#ece0d1"        # texto principal
-  fg1: "#b9a79c"        # texto secundário, operadores
-  muted: "#7d6862"      # comentários, texto desabilitado
+  fg0: "#ece0d1"        # L 0.91 — texto principal
+  fg1: "#a39187"        # L 0.67 — texto secundário, operadores, pontuação
+  muted: "#897987"      # L 0.59 — comentários. Migrou do marrom-avermelhado para o
+                        # mauve das sombras do cabelo: sai do aglomerado quente e
+                        # deixa de colidir com crimson sob protanopia (2.9 → 8.6)
 
   # Cores de identidade
-  crimson: "#e04a4d"    # a cor-assinatura (olhos / pontas do cabelo); clareada da âncora para atingir 4.5:1 sobre bg0
-  blossom: "#e89a94"    # rosa das flores de ameixeira (matiz da flor real, clareado para legibilidade)
-  gold: "#c49a5d"       # dourado dos adornos, puxado ao bronze antigo da âncora
-  ghost: "#8ecfdf"      # azul-fantasma do Boo Tao
-  ember: "#e0915a"      # laranja-brasa (pyro)
-  plum: "#c08fcc"       # violeta do laço do chapéu e das sombras ameixa do cabelo (hue 288 da arte)
-  dusk: "#7991d1"       # índigo do céu noturno da arte oficial (hue 224)
+  crimson: "#df494d"    # L 0.62 — a cor-assinatura (olhos / pontas do cabelo)
+  dusk: "#6d84c4"       # L 0.62 — índigo do céu noturno; ATRIBUTOS além do ANSI blue
+  plum: "#c796d3"       # L 0.74 — violeta do laço do chapéu e das sombras ameixa
+  ember: "#f0a068"      # L 0.77 — laranja-brasa (pyro)
+  ghost: "#90d0e1"      # L 0.82 — azul-fantasma do Boo Tao. Única cor sem lastro
+                        # nas imagens de referência: vem das chamas espirituais do
+                        # kit no jogo. Exceção consciente — é também o respiro frio
+                        # de uma paleta que a arte entrega 91% quente
+  blossom: "#ffaea9"    # L 0.83 — rosa das flores de ameixeira
+  gold: "#c49a5d"       # L 0.71 — dourado dos adornos, bronze antigo da âncora.
+                        # Fora da sintaxe densa desde que `attribute` foi para o
+                        # dusk: em ANSI yellow e diff `changed` ele não disputa
+                        # leitura com o ember, então mantém o tom envelhecido
 
   # Estados (diagnósticos, git, diffs)
+  # Colidem com alguns tokens de sintaxe sob daltonismo, e isso é aceito de
+  # propósito: sempre aparecem com fundo tingido, sublinhado ou marcador de gutter
+  # reforçando. Clareá-los até passar na métrica os deixaria neon e fora do tema.
   error: "#f2493b"
-  warning: "#e3a94f"
-  info: "#8ecfdf"
-  success: "#7fae7a"    # jade discreto — Hu Tao não tem verde, mas diffs precisam
+  warning: "#d8b851"    # saiu de h76, que era idêntico ao gold, para h92
+  info: "#90d0e1"       # mesmo valor do ghost — família informativa
+  success: "#5e8b58"    # jade discreto — Hu Tao não tem verde, mas diffs precisam.
+                        # Escurecido: separa de gold e ember, e fica mais discreto
 
   # Diversos
-  cursor: "#e04a4d"     # acompanha crimson
+  cursor: "#df494d"     # acompanha crimson
 
 # ------------------------------------------------------------
 # ROLES: mapeamento semântico. Valores referenciam nomes da paleta.
@@ -84,7 +105,11 @@ roles:
     operator: fg1
     punctuation: fg1
     tag: crimson          # tags HTML/JSX
-    attribute: gold       # atributos HTML/JSX
+    # Atributo em dusk, não em gold. Gold e ember ocupavam o mesmo ponto para
+    # quem tem daltonismo vermelho-verde (ΔE 0.6), e <Componente atributo=…>
+    # põe tipo e atributo lado a lado. Tirar o gold da sintaxe densa foi o que
+    # destravou a paleta inteira — e o dusk é cor da arte, o céu noturno.
+    attribute: dusk       # atributos HTML/JSX
     regexp: ember
     escape: ember
     builtin: crimson      # this, self, super — palavra-chave disfarçada de variável
@@ -115,3 +140,10 @@ roles:
     magenta: plum
     cyan: ghost
     white: fg1
+
+  # Exceções à regra "bright = base clareada".
+  # bright-black não é chapa: é o cinza que CLIs usam para texto esmaecido
+  # (dicas do git, ls, TUIs). Derivá-lo de bg3 dava 2.76:1, ilegível. Aponta
+  # para o muted, que é exatamente esse papel dentro do editor.
+  terminal-bright:
+    black: muted

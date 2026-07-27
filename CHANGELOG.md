@@ -7,6 +7,47 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 First public release.
 
+### Changed
+
+- **Lightness ladder.** The palette's hues were chosen from the reference art,
+  but its lightness values had never been designed — six syntax tokens sat
+  between OKLCH L 0.70 and 0.77. Red-green colour blindness collapses hues
+  20–90° onto a single axis, leaving only lightness to separate them, so the
+  warm cluster fused: `type` × `attribute` measured ΔE **0.6** under simulated
+  protanopia, i.e. literally the same colour. Every token now occupies a
+  deliberate step ordered by semantic weight. **No hue moved**, so the character
+  reading is unchanged; the worst syntax pair went from 0.6 to **8.0** and the
+  number of colliding pairs from 3 to **0**.
+- `attribute` now resolves to `dusk` instead of `gold`. Taking gold out of the
+  dense syntax set is what made the ladder solvable — six warm colours do not
+  fit the available lightness range. `dusk` is the night sky of the official
+  art and was previously used only for ANSI blue.
+- `muted` moved from red-brown to the plum-mauve of the hair shadows (hue 330),
+  leaving the warm cluster. `keyword` × `comment` went from 2.9 to 8.6 under
+  protanopia, and comments now clear 4.5:1 instead of 3.52:1.
+- `warning` moved off hue 76, where it was identical to `gold`.
+- `success` darkened into a more discreet jade, separating it from gold and ember.
+
+### Fixed
+
+- **The contrast gate passed `bright-black` at 2.76:1 while reporting ✔.** The
+  target was resolved once per ANSI slot and reused for the bright line, so
+  `bright-black` inherited the deliberate exemption granted to `black` (which
+  is a background plate, not text). Bright-black is the grey CLIs use for dim
+  text, so it now has its own 3:1 floor — and is mapped to `muted` via a new
+  `roles.terminal-bright` override instead of being derived from `bg3`.
+- Contrast pairs the gate could not see: `muted` over `bg2` was checked only for
+  the input placeholder, while the peek-view description and focused quick-pick
+  rows used the same pair at 2.98:1. Both are now in the table.
+- `merge.*` (13 keys) and `symbolIcon.*` (33 keys) were entirely absent, so
+  conflict resolution fell back to the VS Code default teal and blue, and the
+  IntelliSense popup opened with purple `#B180D7` and blue `#75BEFF` icons on
+  every keystroke — the two loudest cold leaks in a deliberately warm theme.
+  Also added `icon.foreground`, `editorLightBulb*`, `diffEditor.diagonalFill`
+  and `editor.lineHighlightBorder`.
+- `lighten()` and `alpha()` emitted malformed hex when handed an out-of-range
+  amount or an 8-digit colour. Both now validate their input and clamp.
+
 ### Added
 
 - Dark theme for VS Code: workbench, TextMate `tokenColors` and semantic

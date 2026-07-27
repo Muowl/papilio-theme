@@ -1,4 +1,4 @@
-import { PaletteFile, resolve, alpha, lighten, ANSI_BRIGHT } from "../lib/palette";
+import { PaletteFile, resolve, alpha, lighten, ansiBright } from "../lib/palette";
 
 /**
  * Gera o JSON de tema do VSCode a partir da fonte da verdade.
@@ -10,7 +10,7 @@ export function generateVscodeTheme(p: PaletteFile): object {
   const syn = (role: string) => resolve(p, "syntax", role);
   const ui = (role: string) => resolve(p, "ui", role);
   const ansi = (slot: string) => resolve(p, "terminal", slot);
-  const ansiBright = (slot: string) => lighten(ansi(slot), ANSI_BRIGHT);
+  const bright = (slot: string) => ansiBright(p, slot);
 
   return {
     $schema: "vscode://schemas/color-theme",
@@ -29,6 +29,9 @@ export function generateVscodeTheme(p: PaletteFile): object {
       "editor.findMatchBackground": alpha(c.gold, 0.35),
       "editor.findMatchHighlightBackground": alpha(c.gold, 0.18),
       "editor.lineHighlightBackground": alpha(c.bg2, 0.5),
+      // O default desenha uma borda #282828 por cima do realce quente da linha
+      // atual. Transparente para não sobrar contorno cinza.
+      "editor.lineHighlightBorder": alpha(c.bg2, 0),
       "editor.rangeHighlightBackground": alpha(c.bg2, 0.6),
       "editor.hoverHighlightBackground": alpha(c.ghost, 0.12),
       "editorLineNumber.foreground": c.muted,
@@ -80,11 +83,46 @@ export function generateVscodeTheme(p: PaletteFile): object {
       "editorGutter.deletedBackground": c.error,
       "diffEditor.insertedTextBackground": alpha(c.success, 0.12),
       "diffEditor.removedTextBackground": alpha(c.error, 0.12),
+      "diffEditor.insertedLineBackground": alpha(c.success, 0.08),
+      "diffEditor.removedLineBackground": alpha(c.error, 0.08),
+      "diffEditor.border": c.bg3,
+      // Sem isto a hachura das regiões vazias do diff lado a lado sai no
+      // cinza #cccccc33 do default — a maior mancha fria da tela de diff.
+      "diffEditor.diagonalFill": alpha(c.bg3, 0.5),
+      "diffEditor.unchangedRegionBackground": c.bg1,
+      "diffEditor.unchangedRegionForeground": c.muted,
+      "diffEditorGutter.insertedLineBackground": alpha(c.success, 0.12),
+      "diffEditorGutter.removedLineBackground": alpha(c.error, 0.12),
 
       // Diagnósticos
       "editorError.foreground": c.error,
       "editorWarning.foreground": c.warning,
       "editorInfo.foreground": c.info,
+      // A lâmpada de quick-fix aparece o tempo todo. Os defaults são #FFCC00
+      // (amarelo puro, briga com o gold) e #75BEFF (azul frio) no auto-fix.
+      "editorLightBulb.foreground": c.gold,
+      "editorLightBulbAutoFix.foreground": c.success,
+      "editorLightBulbAi.foreground": c.plum,
+
+      // Merge de conflitos — 12 chaves que estavam todas ausentes. Os defaults
+      // do VS Code são teal (current) e azul (incoming), em blocos grandes no
+      // meio do editor: era o maior vazamento frio do tema.
+      "merge.currentHeaderBackground": alpha(c.crimson, 0.4),
+      "merge.currentContentBackground": alpha(c.crimson, 0.16),
+      "merge.incomingHeaderBackground": alpha(c.dusk, 0.4),
+      "merge.incomingContentBackground": alpha(c.dusk, 0.16),
+      "merge.commonHeaderBackground": alpha(c.bg3, 0.7),
+      "merge.commonContentBackground": alpha(c.bg3, 0.35),
+      "merge.border": c.bg3,
+      "editorOverviewRuler.currentContentForeground": alpha(c.crimson, 0.6),
+      "editorOverviewRuler.incomingContentForeground": alpha(c.dusk, 0.6),
+      "editorOverviewRuler.commonContentForeground": alpha(c.muted, 0.6),
+      "mergeEditor.change.background": alpha(c.gold, 0.14),
+      "mergeEditor.change.word.background": alpha(c.gold, 0.3),
+      "mergeEditor.conflict.unhandledUnfocused.border": alpha(c.error, 0.5),
+      "mergeEditor.conflict.unhandledFocused.border": c.error,
+      "mergeEditor.conflict.handledUnfocused.border": alpha(c.success, 0.4),
+      "mergeEditor.conflict.handledFocused.border": c.success,
 
       // Workbench: chrome geral
       "foreground": c.fg1,
@@ -102,6 +140,48 @@ export function generateVscodeTheme(p: PaletteFile): object {
       "progressBar.background": ui("accent"),
       "editorGroup.border": c.bg3,
       "editorGroupHeader.noTabsBackground": c.bg1,
+      // Alimenta setas de árvore, ícones de toolbar e controles de dobra.
+      // Default #C5C5C5: cinza frio espalhado por toda a chrome.
+      "icon.foreground": c.fg1,
+      "editorGutter.foldingControlForeground": c.muted,
+
+      // Ícones do IntelliSense, do Outline e do breadcrumb. Estavam todos
+      // ausentes, então o autocomplete abria com roxo #B180D7 e azul #75BEFF
+      // do Dark+ a cada tecla — a lacuna mais visível que sobrava.
+      // Seguem os mesmos roles da sintaxe, para o ícone combinar com o token.
+      "symbolIcon.classForeground": syn("type"),
+      "symbolIcon.interfaceForeground": syn("type"),
+      "symbolIcon.structForeground": syn("type"),
+      "symbolIcon.enumeratorForeground": syn("type"),
+      "symbolIcon.typeParameterForeground": syn("type"),
+      "symbolIcon.functionForeground": syn("function"),
+      "symbolIcon.methodForeground": syn("function"),
+      "symbolIcon.constructorForeground": syn("function"),
+      "symbolIcon.eventForeground": syn("function"),
+      "symbolIcon.variableForeground": syn("variable"),
+      "symbolIcon.fieldForeground": syn("property"),
+      "symbolIcon.propertyForeground": syn("property"),
+      "symbolIcon.objectForeground": syn("property"),
+      "symbolIcon.keyForeground": syn("property"),
+      "symbolIcon.constantForeground": syn("constant"),
+      "symbolIcon.enumeratorMemberForeground": syn("constant"),
+      "symbolIcon.numberForeground": syn("number"),
+      "symbolIcon.booleanForeground": syn("constant"),
+      "symbolIcon.nullForeground": syn("constant"),
+      "symbolIcon.stringForeground": syn("string"),
+      "symbolIcon.textForeground": c.fg0,
+      "symbolIcon.keywordForeground": syn("keyword"),
+      "symbolIcon.operatorForeground": syn("operator"),
+      "symbolIcon.moduleForeground": syn("namespace"),
+      "symbolIcon.namespaceForeground": syn("namespace"),
+      "symbolIcon.packageForeground": syn("namespace"),
+      "symbolIcon.arrayForeground": c.fg1,
+      "symbolIcon.unitForeground": c.fg1,
+      "symbolIcon.referenceForeground": c.fg1,
+      "symbolIcon.snippetForeground": c.fg1,
+      "symbolIcon.colorForeground": c.fg1,
+      "symbolIcon.fileForeground": c.fg1,
+      "symbolIcon.folderForeground": c.fg1,
 
       // Sidebar / activity bar
       "activityBar.background": c.bg1,
@@ -194,14 +274,14 @@ export function generateVscodeTheme(p: PaletteFile): object {
       "terminal.ansiMagenta": ansi("magenta"),
       "terminal.ansiCyan": ansi("cyan"),
       "terminal.ansiWhite": ansi("white"),
-      "terminal.ansiBrightBlack": ansiBright("black"),
-      "terminal.ansiBrightRed": ansiBright("red"),
-      "terminal.ansiBrightGreen": ansiBright("green"),
-      "terminal.ansiBrightYellow": ansiBright("yellow"),
-      "terminal.ansiBrightBlue": ansiBright("blue"),
-      "terminal.ansiBrightMagenta": ansiBright("magenta"),
-      "terminal.ansiBrightCyan": ansiBright("cyan"),
-      "terminal.ansiBrightWhite": ansiBright("white"),
+      "terminal.ansiBrightBlack": bright("black"),
+      "terminal.ansiBrightRed": bright("red"),
+      "terminal.ansiBrightGreen": bright("green"),
+      "terminal.ansiBrightYellow": bright("yellow"),
+      "terminal.ansiBrightBlue": bright("blue"),
+      "terminal.ansiBrightMagenta": bright("magenta"),
+      "terminal.ansiBrightCyan": bright("cyan"),
+      "terminal.ansiBrightWhite": bright("white"),
 
       // Inputs, botões, dropdowns
       "input.background": c.bg2,
