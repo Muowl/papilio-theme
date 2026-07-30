@@ -29,6 +29,10 @@ pick it with **Preferences: Color Theme** (`Ctrl+K Ctrl+T`).
 - **Full workbench coverage.** ~330 UI colours are set, so VS Code's stock blues
   don't leak into the warm palette — including merge conflicts and the
   IntelliSense icons, which fall back to teal and purple when left unset.
+- **Two intensities.** **Papilio** is the default — warm, restrained, built for
+  long sessions. **Papilio Blood Blossom** keeps the same lightness ladder and
+  hues but turns up the chroma and sinks the background into wine — same
+  readability floors, more drama. Both variants pass every gate below.
 - **Designed for colour blindness.** Every syntax pair is separated in
   lightness, not only in hue: red-green deficiency collapses the warm hues onto
   one axis, so lightness is what survives. The build enforces a ΔE floor of 6

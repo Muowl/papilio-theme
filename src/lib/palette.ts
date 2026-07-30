@@ -1,4 +1,5 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
 import { load } from "js-yaml";
 
 export interface PaletteFile {
@@ -113,7 +114,58 @@ export function chapaComposta(p: PaletteFile, nome: string): string {
 /** Carrega e valida a fonte da verdade. */
 export function loadPalette(path: string): PaletteFile {
   const data = load(readFileSync(path, "utf8")) as PaletteFile;
+  valida(data);
+  return data;
+}
 
+/**
+ * Carrega uma VARIANTE: um overlay que declara `meta:` completo e só os
+ * tokens de `palette:` que mudam — todo o resto (tokens não citados e os
+ * `roles:` inteiros) vem da base. É o que impede uma variante de virar uma
+ * cópia divergente: decisão semântica continua num lugar só.
+ */
+export function loadPaletteVariant(basePath: string, overlayPath: string): PaletteFile {
+  const base = loadPalette(basePath);
+  const overlay = load(readFileSync(overlayPath, "utf8")) as Partial<PaletteFile>;
+  if (!overlay.meta?.name || !overlay.meta?.slug) {
+    throw new Error(`${overlayPath}: variante precisa de meta.name e meta.slug próprios`);
+  }
+  const data: PaletteFile = {
+    meta: overlay.meta,
+    anchors: base.anchors,
+    palette: { ...base.palette, ...(overlay.palette ?? {}) },
+    roles: overlay.roles
+      ? {
+          syntax: { ...base.roles.syntax, ...(overlay.roles.syntax ?? {}) },
+          ui: { ...base.roles.ui, ...(overlay.roles.ui ?? {}) },
+          terminal: { ...base.roles.terminal, ...(overlay.roles.terminal ?? {}) },
+          "terminal-bright": overlay.roles["terminal-bright"] ?? base.roles["terminal-bright"],
+        }
+      : base.roles,
+  };
+  valida(data);
+  return data;
+}
+
+/**
+ * Todas as paletas do projeto: a base (papilio.yaml) e cada overlay de
+ * variante no mesmo diretório. Geradores e validadores iteram por aqui —
+ * uma variante nasce automaticamente coberta pelos três gates.
+ */
+export function loadAllPalettes(
+  dir: string
+): { p: PaletteFile; ehBase: boolean }[] {
+  const base = join(dir, "papilio.yaml");
+  const overlays = readdirSync(dir)
+    .filter((f) => f.endsWith(".yaml") && f !== "papilio.yaml")
+    .sort();
+  return [
+    { p: loadPalette(base), ehBase: true },
+    ...overlays.map((f) => ({ p: loadPaletteVariant(base, join(dir, f)), ehBase: false })),
+  ];
+}
+
+function valida(data: PaletteFile): void {
   for (const [name, hex] of Object.entries(data.palette)) {
     if (!HEX_RE.test(hex)) {
       throw new Error(`palette.${name}: "${hex}" não é hex válido (#rrggbb)`);
@@ -143,8 +195,6 @@ export function loadPalette(path: string): PaletteFile {
       );
     }
   }
-
-  return data;
 }
 
 /**

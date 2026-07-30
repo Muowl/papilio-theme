@@ -2,17 +2,24 @@
 // Valida as razões de contraste WCAG do tema. Falha (exit 1) se
 // algo ficar abaixo do alvo — integrado ao `npm run build`.
 //
-// Cobre três frentes:
+// Roda para a BASE e para cada variante (overlays em palette/):
+// uma variante nova nasce coberta sem tocar neste arquivo.
+//
+// Cobre quatro frentes por paleta:
 //   1. roles.syntax contra o fundo do editor (bg0)
 //   2. roles.terminal contra o fundo do terminal (roles.ui.terminal-bg)
 //   3. pares de UI que o gerador monta à mão (texto sobre chapa)
+//   3b. texto sobre chapas semitransparentes compostas
+// ...e, só para a base, as cópias manuais de hex (README, package.json).
 //
 // Alvo padrão 4.5:1. Exceções deliberadas ficam em ALVOS_ESPECIAIS.
 // ============================================================
 
 import { join } from "node:path";
 import { readFileSync } from "node:fs";
-import { loadPalette, lighten, ansiBright, CHAPAS, chapaComposta } from "../src/lib/palette";
+import {
+  PaletteFile, loadAllPalettes, lighten, ansiBright, CHAPAS, chapaComposta,
+} from "../src/lib/palette";
 
 const ALVO_PADRAO = 4.5;
 const ALVOS_ESPECIAIS: Record<string, number> = {
@@ -40,11 +47,6 @@ function contraste(a: string, b: string): number {
   const [claro, escuro] = [luminancia(a), luminancia(b)].sort((x, y) => y - x);
   return (claro + 0.05) / (escuro + 0.05);
 }
-
-const PALETTE_PATH = join(import.meta.dirname, "..", "palette", "papilio.yaml");
-const p = loadPalette(PALETTE_PATH);
-const c = p.palette;
-const termBg = c[p.roles.ui["terminal-bg"]];
 
 let falhas = 0;
 
@@ -75,105 +77,126 @@ function linha(nome: string, hex: string, fundo: string, alvo: number): string[]
   ];
 }
 
-// 1. Sintaxe contra o fundo do editor
-tabela(
-  `roles.syntax contra bg0 (${c.bg0}):`,
-  Object.entries(p.roles.syntax).map(([role, token]) =>
-    linha(`${role} (${token})`, c[token], c.bg0, ALVOS_ESPECIAIS[role] ?? ALVO_PADRAO)
-  )
-);
+function rodaPaleta(p: PaletteFile): void {
+  const c = p.palette;
+  const termBg = c[p.roles.ui["terminal-bg"]];
+  const nome = p.meta.name;
 
-// 2. Terminal contra o próprio fundo — inclui os bright derivados
-const linhasTerm: string[][] = [];
-for (const [slot, token] of Object.entries(p.roles.terminal)) {
-  linhasTerm.push(
-    linha(`${slot} (${token})`, c[token], termBg, ALVOS_ESPECIAIS[slot] ?? ALVO_PADRAO)
-  );
-  // alvo resolvido de novo para o bright: os dois têm exigências diferentes
-  linhasTerm.push(
-    linha(
-      `bright-${slot}`,
-      ansiBright(p, slot),
-      termBg,
-      ALVOS_ESPECIAIS[`bright-${slot}`] ?? ALVO_PADRAO
+  // 1. Sintaxe contra o fundo do editor
+  tabela(
+    `[${nome}] roles.syntax contra bg0 (${c.bg0}):`,
+    Object.entries(p.roles.syntax).map(([role, token]) =>
+      linha(`${role} (${token})`, c[token], c.bg0, ALVOS_ESPECIAIS[role] ?? ALVO_PADRAO)
     )
   );
-}
-tabela(`roles.terminal contra ${p.roles.ui["terminal-bg"]} (${termBg}):`, linhasTerm);
 
-// Nenhum par de slots ANSI pode repetir cor — era exatamente o bug de
-// azul == ciano que motivou este bloco.
-const ansi = new Map<string, string>();
-for (const [slot, token] of Object.entries(p.roles.terminal)) {
-  ansi.set(slot, c[token]);
-  ansi.set(`bright-${slot}`, ansiBright(p, slot));
-}
-const vistos = new Map<string, string>();
-for (const [slot, hex] of ansi) {
-  const anterior = vistos.get(hex);
-  if (anterior) {
-    console.error(`✘ ANSI duplicado: ${anterior} e ${slot} são ambos ${hex}`);
+  // 2. Terminal contra o próprio fundo — inclui os bright derivados
+  const linhasTerm: string[][] = [];
+  for (const [slot, token] of Object.entries(p.roles.terminal)) {
+    linhasTerm.push(
+      linha(`${slot} (${token})`, c[token], termBg, ALVOS_ESPECIAIS[slot] ?? ALVO_PADRAO)
+    );
+    // alvo resolvido de novo para o bright: os dois têm exigências diferentes
+    linhasTerm.push(
+      linha(
+        `bright-${slot}`,
+        ansiBright(p, slot),
+        termBg,
+        ALVOS_ESPECIAIS[`bright-${slot}`] ?? ALVO_PADRAO
+      )
+    );
+  }
+  tabela(`[${nome}] roles.terminal contra ${p.roles.ui["terminal-bg"]} (${termBg}):`, linhasTerm);
+
+  // Nenhum par de slots ANSI pode repetir cor — era exatamente o bug de
+  // azul == ciano que motivou este bloco.
+  const ansi = new Map<string, string>();
+  for (const [slot, token] of Object.entries(p.roles.terminal)) {
+    ansi.set(slot, c[token]);
+    ansi.set(`bright-${slot}`, ansiBright(p, slot));
+  }
+  const vistos = new Map<string, string>();
+  for (const [slot, hex] of ansi) {
+    const anterior = vistos.get(hex);
+    if (anterior) {
+      console.error(`✘ [${nome}] ANSI duplicado: ${anterior} e ${slot} são ambos ${hex}`);
+      falhas++;
+    }
+    vistos.set(hex, slot);
+  }
+
+  // 3. Pares de UI montados no gerador (texto sobre chapa colorida).
+  // 3:1 é o piso para texto de apoio; texto de leitura fica em 4.5:1.
+  tabela(`[${nome}] pares de UI:`, [
+    linha("texto do botão", c.bg0, c[p.roles.ui.accent], ALVO_PADRAO),
+    linha("badge", c.bg0, c[p.roles.ui.accent], ALVO_PADRAO),
+    linha("statusbar debug", c.bg0, c.ember, ALVO_PADRAO),
+    linha("statusbar erro", c.bg0, c.error, ALVO_PADRAO),
+    linha("statusbar aviso", c.bg0, c.warning, ALVO_PADRAO),
+    linha("texto da sidebar", c.fg1, c.bg1, ALVO_PADRAO),
+    linha("aba inativa", c.muted, c.bg1, 3.0),
+    linha("número de linha", c.muted, c.bg0, 3.0),
+    linha("code lens", c.muted, c.bg0, 3.0),
+    linha("inlay hint", c.fg1, c.bg0, ALVO_PADRAO),
+    linha("inlay hint tipo", c.ember, c.bg0, ALVO_PADRAO),
+    linha("title bar inativa", c.muted, c.bg1, 3.0),
+    linha("placeholder do input", lighten(c.muted, 0.12), c.bg2, 3.0),
+    linha("texto sobre seleção", c.fg0, c.selection, ALVO_PADRAO),
+    // Consumidores de `muted` sobre bg2 que passavam despercebidos por não
+    // estarem nesta tabela — o gate só enxerga o que está listado aqui.
+    linha("descrição do peek view", c.muted, c.bg2, 3.0),
+    linha("descrição em lista focada", c.muted, c.bg2, 3.0),
+    // Caracteres casados do quick open/suggest: precisam passar em TODOS os
+    // fundos de lista (widget bg1, linha ativa bg2). Era o Known issue do
+    // accent a 4.35:1.
+    linha("realce de busca em lista (bg1)", c[p.roles.ui["list-highlight"]], c.bg1, ALVO_PADRAO),
+    linha("realce de busca em lista (bg2)", c[p.roles.ui["list-highlight"]], c.bg2, ALVO_PADRAO),
+  ]);
+
+  // 3b. Texto sobre as chapas semitransparentes.
+  // O gate media tudo contra bg0, mas um realce de busca ou um bloco de merge
+  // desenha uma chapa ATRÁS do código: o que o olho lê é a cor composta. O find
+  // match estava em alpha 0.35 e derrubava comentário para 2.34:1 enquanto esta
+  // tabela inteira reportava ✔, simplesmente por não existir.
+  //
+  // Piso 3.0 e não 4.5: a chapa é transitória e sempre acompanhada de outro
+  // sinal (borda, gutter, cursor). O que não se aceita é o realce APAGAR o texto
+  // que ele deveria estar destacando.
+  const PISO_CHAPA = 3.0;
+  tabela(
+    `[${nome}] texto sobre chapas compostas:`,
+    Object.keys(CHAPAS).flatMap((nomeChapa) => {
+      const composta = chapaComposta(p, nomeChapa);
+      // muted (comentário) e dusk (atributo) são os tokens mais escuros que
+      // aparecem por cima de código — se eles passam, o resto passa.
+      return [
+        linha(`${nomeChapa} / comentário`, c.muted, composta, PISO_CHAPA),
+        linha(`${nomeChapa} / atributo`, c[p.roles.syntax.attribute], composta, PISO_CHAPA),
+      ];
+    })
+  );
+
+  // `cursor` repete o hex do `crimson` à mão (a palette só aceita hex literal,
+  // não referências). Nada impedia os dois de divergirem no próximo ajuste —
+  // mesma classe de bug do README. Vale para cada variante.
+  if (c.cursor.toLowerCase() !== c.crimson.toLowerCase()) {
+    console.error(
+      `\n✘ [${nome}] palette — cursor ${c.cursor} ≠ crimson ${c.crimson} (cursor deve acompanhar crimson)`
+    );
     falhas++;
   }
-  vistos.set(hex, slot);
 }
 
-// 3. Pares de UI montados no gerador (texto sobre chapa colorida).
-// 3:1 é o piso para texto de apoio; texto de leitura fica em 4.5:1.
-tabela(`pares de UI:`, [
-  linha("texto do botão", c.bg0, c[p.roles.ui.accent], ALVO_PADRAO),
-  linha("badge", c.bg0, c[p.roles.ui.accent], ALVO_PADRAO),
-  linha("statusbar debug", c.bg0, c.ember, ALVO_PADRAO),
-  linha("statusbar erro", c.bg0, c.error, ALVO_PADRAO),
-  linha("statusbar aviso", c.bg0, c.warning, ALVO_PADRAO),
-  linha("texto da sidebar", c.fg1, c.bg1, ALVO_PADRAO),
-  linha("aba inativa", c.muted, c.bg1, 3.0),
-  linha("número de linha", c.muted, c.bg0, 3.0),
-  linha("code lens", c.muted, c.bg0, 3.0),
-  linha("inlay hint", c.fg1, c.bg0, ALVO_PADRAO),
-  linha("inlay hint tipo", c.ember, c.bg0, ALVO_PADRAO),
-  linha("title bar inativa", c.muted, c.bg1, 3.0),
-  linha("placeholder do input", lighten(c.muted, 0.12), c.bg2, 3.0),
-  linha("texto sobre seleção", c.fg0, c.selection, ALVO_PADRAO),
-  // Consumidores de `muted` sobre bg2 que passavam despercebidos por não
-  // estarem nesta tabela — o gate só enxerga o que está listado aqui.
-  linha("descrição do peek view", c.muted, c.bg2, 3.0),
-  linha("descrição em lista focada", c.muted, c.bg2, 3.0),
-  // Caracteres casados do quick open/suggest: precisam passar em TODOS os
-  // fundos de lista (widget bg1, linha ativa bg2). Era o Known issue do
-  // accent a 4.35:1.
-  linha("realce de busca em lista (bg1)", c[p.roles.ui["list-highlight"]], c.bg1, ALVO_PADRAO),
-  linha("realce de busca em lista (bg2)", c[p.roles.ui["list-highlight"]], c.bg2, ALVO_PADRAO),
-]);
-
-// 3b. Texto sobre as chapas semitransparentes.
-// O gate media tudo contra bg0, mas um realce de busca ou um bloco de merge
-// desenha uma chapa ATRÁS do código: o que o olho lê é a cor composta. O find
-// match estava em alpha 0.35 e derrubava comentário para 2.34:1 enquanto esta
-// tabela inteira reportava ✔, simplesmente por não existir.
-//
-// Piso 3.0 e não 4.5: a chapa é transitória e sempre acompanhada de outro
-// sinal (borda, gutter, cursor). O que não se aceita é o realce APAGAR o texto
-// que ele deveria estar destacando.
-const PISO_CHAPA = 3.0;
-tabela(
-  "texto sobre chapas compostas:",
-  Object.keys(CHAPAS).flatMap((nome) => {
-    const composta = chapaComposta(p, nome);
-    // muted (comentário) e dusk (atributo) são os tokens mais escuros que
-    // aparecem por cima de código — se eles passam, o resto passa.
-    return [
-      linha(`${nome} / comentário`, c.muted, composta, PISO_CHAPA),
-      linha(`${nome} / atributo`, c[p.roles.syntax.attribute], composta, PISO_CHAPA),
-    ];
-  })
-);
-
-// 4. Cópias manuais de hex fora do YAML.
-// O gerador é limpo, mas README e package.json repetem cores à mão e nada
-// impedia que envelhecessem — foi exatamente o que aconteceu quando a paleta
-// mudou. Estes dois checks são baratos e fecham a porta.
 const raiz = join(import.meta.dirname, "..");
+const paletas = loadAllPalettes(join(raiz, "palette"));
+for (const { p } of paletas) rodaPaleta(p);
+
+// 4. Cópias manuais de hex fora do YAML — só a BASE aparece no README e no
+// package.json. O gerador é limpo, mas esses dois repetem cores à mão e nada
+// impedia que envelhecessem — foi exatamente o que aconteceu quando a paleta
+// mudou. Estes checks são baratos e fecham a porta.
+const base = paletas.find((x) => x.ehBase)!.p;
+const cBase = base.palette;
 
 const readme = readFileSync(join(raiz, "README.md"), "utf8");
 const bloco = readme.match(/<!-- palette:start[\s\S]*?<!-- palette:end -->/);
@@ -183,10 +206,10 @@ if (!bloco) {
 } else {
   const linhasReadme = [...bloco[0].matchAll(/^\|\s*`(\w[\w-]*)`\s*\|\s*`(#[0-9a-fA-F]{6})`/gm)];
   const divergentes = linhasReadme
-    .filter(([, token, hex]) => c[token] && c[token].toLowerCase() !== hex.toLowerCase())
-    .map(([, token, hex]) => `${token}: README diz ${hex}, palette diz ${c[token]}`);
+    .filter(([, token, hex]) => cBase[token] && cBase[token].toLowerCase() !== hex.toLowerCase())
+    .map(([, token, hex]) => `${token}: README diz ${hex}, palette diz ${cBase[token]}`);
   const inexistentes = linhasReadme
-    .filter(([, token]) => !c[token])
+    .filter(([, token]) => !cBase[token])
     .map(([, token]) => `${token}: está no README mas não existe na palette`);
   for (const msg of [...divergentes, ...inexistentes]) {
     console.error(`✘ README.md — ${msg}`);
@@ -194,25 +217,29 @@ if (!bloco) {
   }
 }
 
-// `cursor` repete o hex do `crimson` à mão (a palette só aceita hex literal,
-// não referências). Nada impedia os dois de divergirem no próximo ajuste —
-// mesma classe de bug do README acima.
-if (c.cursor.toLowerCase() !== c.crimson.toLowerCase()) {
-  console.error(
-    `\n✘ palette — cursor ${c.cursor} ≠ crimson ${c.crimson} (cursor deve acompanhar crimson)`
-  );
+const pkg = JSON.parse(readFileSync(join(raiz, "package.json"), "utf8"));
+const banner = pkg.galleryBanner?.color?.toLowerCase();
+if (banner && banner !== cBase.bg0.toLowerCase()) {
+  console.error(`✘ package.json — galleryBanner.color ${banner} ≠ bg0 ${cBase.bg0}`);
   falhas++;
 }
 
-const pkg = JSON.parse(readFileSync(join(raiz, "package.json"), "utf8"));
-const banner = pkg.galleryBanner?.color?.toLowerCase();
-if (banner && banner !== c.bg0.toLowerCase()) {
-  console.error(`✘ package.json — galleryBanner.color ${banner} ≠ bg0 ${c.bg0}`);
-  falhas++;
+// Cada paleta precisa estar registrada como tema no package.json — uma
+// variante nova sem entrada em contributes.themes simplesmente não aparece
+// no seletor do VSCode.
+const caminhosTemas = new Set(
+  (pkg.contributes?.themes ?? []).map((t: { path: string }) => t.path)
+);
+for (const { p } of paletas) {
+  const esperado = `./themes/${p.meta.slug}-color-theme.json`;
+  if (!caminhosTemas.has(esperado)) {
+    console.error(`✘ package.json — contributes.themes não lista ${esperado} (${p.meta.name})`);
+    falhas++;
+  }
 }
 
 if (falhas > 0) {
-  console.error(`\n✘ ${falhas} problema(s). Ajuste palette/papilio.yaml.`);
+  console.error(`\n✘ ${falhas} problema(s). Ajuste palette/*.yaml.`);
   process.exit(1);
 }
-console.log("\n✔ Contraste e unicidade ANSI dentro dos alvos.");
+console.log(`\n✔ Contraste e unicidade ANSI dentro dos alvos (${paletas.length} paleta(s)).`);

@@ -11,6 +11,12 @@ primeiro alvo; a arquitetura já prevê outras plataformas.
 palette/papilio.yaml  →  src/generate.ts  →  themes/*.json + assets/logo.* (e futuros alvos)
 ```
 
+Variantes são OVERLAYS: `palette/<slug>.yaml` declara `meta:` completo e só
+os tokens de `palette:` que mudam — roles e o resto vêm da base via
+`loadPaletteVariant`. Geradores e os três validadores iteram por
+`loadAllPalettes`, então uma variante nova nasce gerada e coberta pelos
+gates sem tocar em nenhum script.
+
 - `anchors`: cores brutas da personagem (referência, não consumidas por geradores)
 - `palette`: tokens nomeados com hex final, ajustados para tela
 - `roles`: mapeamento semântico — decisões de design vivem aqui. Três grupos:
@@ -92,7 +98,11 @@ As cores extraídas alimentam `anchors:` no YAML. A passagem de âncora para
 - [x] Fase 2 — Refinar âncoras com imagens reais em `references/` + polir
       contraste (criar `scripts/check_contrast.ts` que valida razões WCAG
       de cada role de sintaxe contra bg0 e falha o build se degradar)
-- [ ] Fase 3 — Variante "Papilio Blood Blossom" (mais saturada, para quem quer drama)
+- [x] Fase 3 — Variante "Papilio Blood Blossom" (mais saturada, para quem quer
+      drama). Overlay em `palette/papilio-blood-blossom.yaml`: só os tokens
+      que mudam; roles e escada de luminosidade herdados da base. Direção:
+      drama = croma (matiz e L preservados), fundos um degrau mais escuros
+      puxados para o vinho, texto intacto. Os três gates rodam nas duas.
 - [x] Fase 4 — Export Base24 (ecossistema tinted-theming) em
       `src/generators/base24.ts` → `themes/papilio-base24.yaml`. Os slots
       ANSI espelham `roles.terminal` (+ `ansiBright`), então o terminal

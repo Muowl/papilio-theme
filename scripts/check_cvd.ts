@@ -2,6 +2,8 @@
 // Valida a SEPARAÇÃO PERCEPTUAL das cores sob daltonismo. Falha
 // (exit 1) se um par cair abaixo do piso — integrado ao `npm run check`.
 //
+// Roda para a BASE e para cada variante (overlays em palette/).
+//
 // A escada de luminosidade da palette foi projetada para visão
 // vermelho-verde deficiente, mas nada a vigiava: o check de contraste
 // mede razões WCAG (legibilidade contra o fundo), não a distância
@@ -21,7 +23,7 @@
 // ============================================================
 
 import { join } from "node:path";
-import { loadPalette, BRACKETS } from "../src/lib/palette";
+import { PaletteFile, loadAllPalettes, BRACKETS } from "../src/lib/palette";
 
 type V3 = [number, number, number];
 type Visao = "normal" | "protanopia" | "deuteranopia";
@@ -43,6 +45,8 @@ const PISO_ESTADOS = 2.5;
 
 // Pares que o design cita nominalmente, com o piso da decisão documentada.
 // Se um ajuste futuro da palette derrubar um destes, o build para.
+// Valem para a base E para as variantes: variante que fura um destes pisos
+// não é "drama", é outra paleta.
 const PARES_NOMEADOS: { a: string; b: string; visao: Visao; piso: number; motivo: string }[] = [
   { a: "crimson", b: "fg1", visao: "protanopia", piso: 10.0,
     motivo: "tag encosta na pontuação em todo <div>; o teto do clareamento do crimson é este joelho" },
@@ -113,10 +117,7 @@ function deltaE(hexA: string, hexB: string, visao: Visao): number {
 // ------------------------------------------------------------
 // Execução
 // ------------------------------------------------------------
-const p = loadPalette(join(import.meta.dirname, "..", "palette", "papilio.yaml"));
-const c = p.palette;
 const VISOES: Visao[] = ["normal", "protanopia", "deuteranopia"];
-
 let falhas = 0;
 
 function tabela(titulo: string, cab: string[], linhas: string[][]): void {
@@ -128,108 +129,115 @@ function tabela(titulo: string, cab: string[], linhas: string[][]): void {
   for (const l of linhas) console.log(fmt(l));
 }
 
-// Tokens distintos usados em roles.syntax, com os roles que os usam.
-// Dedupe por token: quote=muted e keyword=tag=crimson são compartilhamentos
-// deliberados — o que se mede é a distância entre CORES diferentes.
-const usoPorToken = new Map<string, string[]>();
-for (const [role, token] of Object.entries(p.roles.syntax)) {
-  usoPorToken.set(token, [...(usoPorToken.get(token) ?? []), role]);
-}
-const tokens = [...usoPorToken.keys()].sort();
+function rodaPaleta(p: PaletteFile): void {
+  const c = p.palette;
+  const nome = p.meta.name;
 
-// 1. Piso global sobre todos os pares de sintaxe, nas três visões.
-// A tabela imprime só o que está abaixo do nível de atenção (12) — o
-// resto é folga; a matriz completa sai com --matriz.
-const ATENCAO = 12;
-const soEstado = (token: string) =>
-  usoPorToken.get(token)!.every((role) => ROLES_DE_ESTADO.has(role));
-const linhasSintaxe: string[][] = [];
-for (let i = 0; i < tokens.length; i++) {
-  for (let j = i + 1; j < tokens.length; j++) {
-    const [a, b] = [tokens[i], tokens[j]];
-    const chave = `${a}×${b}`;
-    const estado = soEstado(a) || soEstado(b);
-    const piso = estado ? PISO_ESTADOS : PISO_SINTAXE;
-    for (const visao of VISOES) {
-      const dE = deltaE(c[a], c[b], visao);
-      const ok = dE >= piso;
-      if (!ok) falhas++;
-      if (dE < ATENCAO || !ok) {
-        linhasSintaxe.push([
-          chave,
-          visao,
-          dE.toFixed(1),
-          piso.toFixed(1) + (estado ? " (estado)" : ""),
-          ok ? "✔" : "✘ ABAIXO",
-        ]);
-      }
-    }
+  // Tokens distintos usados em roles.syntax, com os roles que os usam.
+  // Dedupe por token: quote=muted e keyword=tag=crimson são compartilhamentos
+  // deliberados — o que se mede é a distância entre CORES diferentes.
+  const usoPorToken = new Map<string, string[]>();
+  for (const [role, token] of Object.entries(p.roles.syntax)) {
+    usoPorToken.set(token, [...(usoPorToken.get(token) ?? []), role]);
   }
-}
-linhasSintaxe.sort((x, y) => parseFloat(x[2]) - parseFloat(y[2]));
-tabela(
-  `pares de sintaxe abaixo do nível de atenção (ΔE < ${ATENCAO}; piso ${PISO_SINTAXE}):`,
-  ["par", "visão", "ΔE", "piso", "status"],
-  linhasSintaxe
-);
+  const tokens = [...usoPorToken.keys()].sort();
+  const soEstado = (token: string) =>
+    usoPorToken.get(token)!.every((role) => ROLES_DE_ESTADO.has(role));
 
-// 2. Pares nomeados: as decisões de design viram asserções.
-tabela(
-  "pares nomeados do design:",
-  ["par", "visão", "ΔE", "piso", "status"],
-  PARES_NOMEADOS.map(({ a, b, visao, piso }) => {
-    const dE = deltaE(c[a], c[b], visao);
-    const ok = dE >= piso;
-    if (!ok) falhas++;
-    return [`${a}×${b}`, visao, dE.toFixed(1), piso.toFixed(1), ok ? "✔" : "✘ ABAIXO"];
-  })
-);
-
-// 3. Brackets: o conjunto sem segundo canal. Mede os 6 níveis entre si e
-// cada um contra o bracket-erro — foi a colisão crimson×error que motivou
-// a reorganização.
-const PISO_BRACKETS = 6.0;
-const conjuntoBrackets = [...BRACKETS, "error"];
-const linhasBrackets: string[][] = [];
-for (let i = 0; i < conjuntoBrackets.length; i++) {
-  for (let j = i + 1; j < conjuntoBrackets.length; j++) {
-    const [a, b] = [conjuntoBrackets[i], conjuntoBrackets[j]];
-    for (const visao of VISOES) {
-      const dE = deltaE(c[a], c[b], visao);
-      const ok = dE >= PISO_BRACKETS;
-      if (!ok) falhas++;
-      if (dE < ATENCAO || !ok) {
-        linhasBrackets.push([`${a}×${b}`, visao, dE.toFixed(1), PISO_BRACKETS.toFixed(1), ok ? "✔" : "✘ ABAIXO"]);
-      }
-    }
-  }
-}
-linhasBrackets.sort((x, y) => parseFloat(x[2]) - parseFloat(y[2]));
-tabela(
-  `brackets (níveis 1-6 + bracket não fechado) abaixo do nível de atenção:`,
-  ["par", "visão", "ΔE", "piso", "status"],
-  linhasBrackets
-);
-
-// Modo de inspeção: a matriz completa, para quando se ajusta a palette.
-if (process.argv.includes("--matriz")) {
-  const linhas: string[][] = [];
+  // 1. Piso global sobre todos os pares de sintaxe, nas três visões.
+  // A tabela imprime só o que está abaixo do nível de atenção (12) — o
+  // resto é folga; a matriz completa sai com --matriz.
+  const ATENCAO = 12;
+  const linhasSintaxe: string[][] = [];
   for (let i = 0; i < tokens.length; i++) {
     for (let j = i + 1; j < tokens.length; j++) {
       const [a, b] = [tokens[i], tokens[j]];
-      linhas.push([
-        `${a}×${b}`,
-        `(${usoPorToken.get(a)!.join(",")} × ${usoPorToken.get(b)!.join(",")})`,
-        ...VISOES.map((v) => deltaE(c[a], c[b], v).toFixed(1)),
-      ]);
+      const estado = soEstado(a) || soEstado(b);
+      const piso = estado ? PISO_ESTADOS : PISO_SINTAXE;
+      for (const visao of VISOES) {
+        const dE = deltaE(c[a], c[b], visao);
+        const ok = dE >= piso;
+        if (!ok) falhas++;
+        if (dE < ATENCAO || !ok) {
+          linhasSintaxe.push([
+            `${a}×${b}`,
+            visao,
+            dE.toFixed(1),
+            piso.toFixed(1) + (estado ? " (estado)" : ""),
+            ok ? "✔" : "✘ ABAIXO",
+          ]);
+        }
+      }
     }
   }
-  linhas.sort((x, y) => parseFloat(x[2]) - parseFloat(y[2]));
-  tabela("matriz completa (ordenada pelo ΔE normal):", ["par", "roles", "normal", "protan", "deutan"], linhas);
+  linhasSintaxe.sort((x, y) => parseFloat(x[2]) - parseFloat(y[2]));
+  tabela(
+    `[${nome}] pares de sintaxe abaixo do nível de atenção (ΔE < ${ATENCAO}; piso ${PISO_SINTAXE}):`,
+    ["par", "visão", "ΔE", "piso", "status"],
+    linhasSintaxe
+  );
+
+  // 2. Pares nomeados: as decisões de design viram asserções.
+  tabela(
+    `[${nome}] pares nomeados do design:`,
+    ["par", "visão", "ΔE", "piso", "status"],
+    PARES_NOMEADOS.map(({ a, b, visao, piso }) => {
+      const dE = deltaE(c[a], c[b], visao);
+      const ok = dE >= piso;
+      if (!ok) falhas++;
+      return [`${a}×${b}`, visao, dE.toFixed(1), piso.toFixed(1), ok ? "✔" : "✘ ABAIXO"];
+    })
+  );
+
+  // 3. Brackets: o conjunto sem segundo canal. Mede os 6 níveis entre si e
+  // cada um contra o bracket-erro — foi a colisão crimson×error que motivou
+  // a reorganização.
+  const PISO_BRACKETS = 6.0;
+  const conjuntoBrackets = [...BRACKETS, "error"];
+  const linhasBrackets: string[][] = [];
+  for (let i = 0; i < conjuntoBrackets.length; i++) {
+    for (let j = i + 1; j < conjuntoBrackets.length; j++) {
+      const [a, b] = [conjuntoBrackets[i], conjuntoBrackets[j]];
+      for (const visao of VISOES) {
+        const dE = deltaE(c[a], c[b], visao);
+        const ok = dE >= PISO_BRACKETS;
+        if (!ok) falhas++;
+        if (dE < ATENCAO || !ok) {
+          linhasBrackets.push([`${a}×${b}`, visao, dE.toFixed(1), PISO_BRACKETS.toFixed(1), ok ? "✔" : "✘ ABAIXO"]);
+        }
+      }
+    }
+  }
+  linhasBrackets.sort((x, y) => parseFloat(x[2]) - parseFloat(y[2]));
+  tabela(
+    `[${nome}] brackets (níveis 1-6 + bracket não fechado) abaixo do nível de atenção:`,
+    ["par", "visão", "ΔE", "piso", "status"],
+    linhasBrackets
+  );
+
+  // Modo de inspeção: a matriz completa, para quando se ajusta a palette.
+  if (process.argv.includes("--matriz")) {
+    const linhas: string[][] = [];
+    for (let i = 0; i < tokens.length; i++) {
+      for (let j = i + 1; j < tokens.length; j++) {
+        const [a, b] = [tokens[i], tokens[j]];
+        linhas.push([
+          `${a}×${b}`,
+          `(${usoPorToken.get(a)!.join(",")} × ${usoPorToken.get(b)!.join(",")})`,
+          ...VISOES.map((v) => deltaE(c[a], c[b], v).toFixed(1)),
+        ]);
+      }
+    }
+    linhas.sort((x, y) => parseFloat(x[2]) - parseFloat(y[2]));
+    tabela(`[${nome}] matriz completa (ordenada pelo ΔE normal):`, ["par", "roles", "normal", "protan", "deutan"], linhas);
+  }
 }
 
+const paletas = loadAllPalettes(join(import.meta.dirname, "..", "palette"));
+for (const { p } of paletas) rodaPaleta(p);
+
 if (falhas > 0) {
-  console.error(`\n✘ ${falhas} par(es) abaixo do piso de separação. Ajuste palette/papilio.yaml.`);
+  console.error(`\n✘ ${falhas} par(es) abaixo do piso de separação. Ajuste palette/*.yaml.`);
   process.exit(1);
 }
-console.log(`\n✔ Separação perceptual dentro dos pisos (normal, protanopia, deuteranopia).`);
+console.log(`\n✔ Separação perceptual dentro dos pisos (${paletas.length} paleta(s), 3 visões).`);

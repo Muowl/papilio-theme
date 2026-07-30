@@ -1,0 +1,54 @@
+# ============================================================
+# VARIANTE "Papilio Blood Blossom" — o estado Blood Blossom da
+# Hu Tao: a mesma paleta, com mais sangue.
+#
+# Isto é um OVERLAY: só os tokens que mudam. Tudo que não está
+# aqui (fg0/fg1/muted, anchors, todos os roles) vem da base —
+# ver loadPaletteVariant em src/lib/palette.ts. As decisões
+# semânticas continuam num lugar só.
+#
+# Direção de cor: drama = croma, não luminosidade. Cada acento
+# ganha saturação com a MESMA L da base (a escada de luminosidade
+# é o que protege daltonismo — ela não se negocia). Os fundos
+# descem um degrau e puxam para o vinho; o texto não muda, porque
+# drama que cansa em meia hora não é drama, é ruído.
+# Os três gates rodam nesta variante igual à base.
+# ============================================================
+
+meta:
+  name: "Papilio Blood Blossom"
+  slug: "papilio-blood-blossom"
+  variant: "dark"
+  author: "muowl"
+  description: "Variante saturada do tema Papilio — mesma escada de luminosidade, mais sangue."
+
+palette:
+  # Fundos: mais escuros e tingidos de vinho. Escurecer aumenta o
+  # contraste de tudo que está por cima — é o que paga o croma extra
+  # dos acentos sem furar nenhum piso.
+  bg0: "#1c1012"
+  bg1: "#251517"
+  bg2: "#321d1f"
+  bg3: "#402726"
+  selection: "#572f2e"
+
+  # Acentos: croma acima, matiz e L da base.
+  crimson: "#f44853"    # a assinatura com mais sangue
+  dusk: "#6a86dc"       # índigo mais elétrico
+  plum: "#d392e6"       # violeta mais vivo
+  ember: "#f9a25f"      # brasa mais quente, um fio mais clara — sob
+                        # deuteranopia é a luminosidade que separa do gold
+  ghost: "#7ed6ee"      # chama espiritual mais fria e mais viva
+  blossom: "#ffa49e"    # flor de ameixeira mais rosada
+  gold: "#cb9b52"       # bronze só um passo mais dourado: saturar demais
+                        # colapsava com ember e error sob deuteranopia
+
+  # Estados acompanham o aumento de croma para não parecerem lavados
+  # ao lado dos acentos.
+  error: "#f9422f"      # mais fundo no vermelho — afasta do gold sob deutan
+  warning: "#e0be3c"
+  info: "#7ed6ee"       # acompanha ghost — família informativa
+  success: "#579552"
+
+  # Cópia manual do crimson, como na base — o gate valida.
+  cursor: "#f44853"

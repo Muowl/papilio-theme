@@ -7,6 +7,22 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- **Variante "Papilio Blood Blossom"** (fase 3 do roadmap): a mesma paleta com
+  mais sangue. Implementada como OVERLAY (`palette/papilio-blood-blossom.yaml`)
+  que declara só os tokens que mudam — roles, escada de luminosidade e âncoras
+  vêm da base via `loadPaletteVariant`, então as decisões semânticas continuam
+  num lugar só. Direção de cor: drama = croma com matiz e L preservados;
+  fundos um degrau mais escuros, tingidos de vinho (o que paga o croma extra
+  dos acentos); texto intacto. Geradores e os três gates iteram por
+  `loadAllPalettes`: a variante nasceu passando contraste, daltonismo e
+  tokenização — e os pares nomeados ficaram ATÉ mais folgados que na base
+  (tag × pontuação 11.8 vs 10.9 sob protanopia). O primeiro rascunho furou
+  dois pisos sob deuteranopia (gold × ember e gold × error a 5.8) — saturar
+  todos os quentes de uma vez comprime as distâncias; o reequilíbrio devolveu
+  a folga via luminosidade, exatamente como a escada manda. O check de
+  contraste também confere que cada paleta tem entrada em
+  `contributes.themes` do package.json.
+
 - **Export Base24** (`src/generators/base24.ts` → `themes/papilio-base24.yaml`),
   fase 4 do roadmap: destrava os templates do ecossistema tinted-theming
   (terminal, tmux, shells). base08–base0E e base12–base17 espelham os slots

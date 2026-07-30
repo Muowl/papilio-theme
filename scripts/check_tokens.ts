@@ -22,12 +22,10 @@ import { join } from "node:path";
 import { readFileSync } from "node:fs";
 import * as vsctm from "vscode-textmate";
 import * as oniguruma from "vscode-oniguruma";
-import { loadPalette } from "../src/lib/palette";
+import { PaletteFile, loadAllPalettes } from "../src/lib/palette";
 import { generateVscodeTheme } from "../src/generators/vscode";
 
 const raiz = join(import.meta.dirname, "..");
-const p = loadPalette(join(raiz, "palette", "papilio.yaml"));
-const c = p.palette;
 
 // ------------------------------------------------------------
 // Casos: cada linha diz "este trecho deste fixture sai nesta cor,
@@ -126,9 +124,16 @@ const FOREGROUND_MASK = 0b00000000_11111111_10000000_00000000;
 const FOREGROUND_OFFSET = 15;
 const ITALICO = 1;
 
+// O WASM do oniguruma só pode ser inicializado uma vez por processo — o
+// registry, porém, é um por paleta (setTheme muda o colorMap inteiro).
+let wasmCarregado = false;
+
 async function criaRegistry(): Promise<vsctm.Registry> {
-  const wasm = readFileSync(join(raiz, "node_modules", "vscode-oniguruma", "release", "onig.wasm"));
-  await oniguruma.loadWASM(wasm.buffer.slice(wasm.byteOffset, wasm.byteOffset + wasm.byteLength));
+  if (!wasmCarregado) {
+    const wasm = readFileSync(join(raiz, "node_modules", "vscode-oniguruma", "release", "onig.wasm"));
+    await oniguruma.loadWASM(wasm.buffer.slice(wasm.byteOffset, wasm.byteOffset + wasm.byteLength));
+    wasmCarregado = true;
+  }
   return new vsctm.Registry({
     onigLib: Promise.resolve({
       createOnigScanner: (padroes) => new oniguruma.OnigScanner(padroes),
@@ -192,7 +197,9 @@ function tokenizaArquivo(
 // ------------------------------------------------------------
 // Execução
 // ------------------------------------------------------------
-async function main(): Promise<void> {
+/** Roda todos os casos para uma paleta; devolve o número de falhas. */
+async function rodaPaleta(p: PaletteFile): Promise<number> {
+  const c = p.palette;
   const registry = await criaRegistry();
 
   // O tema entra no registry como o VS Code o entrega: tokenColors precedidos
@@ -268,18 +275,28 @@ async function main(): Promise<void> {
   const cab = ["onde", "trecho", "esperado", "obtido", "status"];
   const larguras = cab.map((h, i) => Math.max(h.length, ...linhasTabela.map((l) => l[i].length)));
   const fmt = (l: string[]) => l.map((cel, i) => cel.padEnd(larguras[i])).join("  ");
-  console.log(`\ntokenização real contra as gramáticas do VS Code:\n`);
+  console.log(`\n[${p.meta.name}] tokenização real contra as gramáticas do VS Code:\n`);
   console.log(fmt(cab));
   console.log(larguras.map((w) => "-".repeat(w)).join("  "));
   for (const l of linhasTabela) console.log(fmt(l));
 
   if (falhas > 0) {
-    console.error(`\nescopos dos casos que falharam:`);
+    console.error(`\n[${p.meta.name}] escopos dos casos que falharam:`);
     for (const d of diagnosticos) console.error(d);
+  }
+  return falhas;
+}
+
+async function main(): Promise<void> {
+  const paletas = loadAllPalettes(join(raiz, "palette"));
+  let falhas = 0;
+  for (const { p } of paletas) falhas += await rodaPaleta(p);
+
+  if (falhas > 0) {
     console.error(`\n✘ ${falhas} caso(s) de tokenização divergem do esperado.`);
     process.exit(1);
   }
-  console.log(`\n✔ ${casos.length} casos de tokenização conferem com o tema.`);
+  console.log(`\n✔ ${casos.length} casos × ${paletas.length} paleta(s) de tokenização conferem com o tema.`);
 }
 
 main().catch((erro) => {

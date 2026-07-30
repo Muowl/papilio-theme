@@ -37,6 +37,11 @@
         "label": "Papilio",
         "uiTheme": "vs-dark",
         "path": "./themes/papilio-color-theme.json"
+      },
+      {
+        "label": "Papilio Blood Blossom",
+        "uiTheme": "vs-dark",
+        "path": "./themes/papilio-blood-blossom-color-theme.json"
       }
     ]
   },
