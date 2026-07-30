@@ -1,0 +1,32 @@
+# Gerado por src/generators/base24.ts a partir de palette/papilio.yaml.
+# NÃO editar à mão — rode `npm run build`.
+system: "base24"
+name: "Papilio"
+slug: "papilio"
+author: "muowl"
+variant: "dark"
+palette:
+  base00: "#191313" # fundo do editor (bg0)
+  base01: "#211918" # painéis, statusbar (bg1)
+  base02: "#4a2f2d" # seleção de texto (selection)
+  base03: "#897987" # comentários (muted)
+  base04: "#a39187" # texto secundário (fg1)
+  base05: "#ece0d1" # texto principal (fg0)
+  base06: "#f1e8dd" # texto claro (fg0 clareado)
+  base07: "#f6f0e8" # fundo claro / branco quente (fg0 clareado)
+  base08: "#ea5356" # red — a assinatura (crimson, igual ao ANSI red)
+  base09: "#f0a068" # orange — brasa pyro (ember)
+  base0A: "#c49a5d" # yellow — bronze antigo (gold)
+  base0B: "#5e8b58" # green — jade do diff (success)
+  base0C: "#90d0e1" # cyan — azul do Boo Tao (ghost)
+  base0D: "#6d84c4" # blue — índigo do céu noturno (dusk)
+  base0E: "#c796d3" # magenta — violeta do laço (plum)
+  base0F: "#f2493b" # deprecated — o segundo vermelho (error)
+  base10: "#151010" # fundo mais escuro (bg0 escurecido)
+  base11: "#120d0d" # fundo mais escuro ainda (bg0 escurecido)
+  base12: "#ef797b" # bright red (ANSI bright)
+  base13: "#d1b081" # bright yellow (ANSI bright)
+  base14: "#81a57d" # bright green (ANSI bright)
+  base15: "#a8dae8" # bright cyan (ANSI bright)
+  base16: "#8d9fd1" # bright blue (ANSI bright)
+  base17: "#d3addd" # bright magenta (ANSI bright)

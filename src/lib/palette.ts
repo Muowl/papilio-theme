@@ -192,3 +192,18 @@ export function lighten(hex: string, amount: number): string {
   });
   return "#" + canais.map((c) => c.toString(16).padStart(2, "0")).join("");
 }
+
+/**
+ * Escurece um hex puxando cada canal em direção ao preto — o espelho de
+ * lighten(), com a mesma justificativa: transformação de um token da
+ * palette, não hex hardcoded. Usado pelos fundos extras do Base24.
+ */
+export function darken(hex: string, amount: number): string {
+  if (!HEX_RE.test(hex)) throw new Error(`darken(): "${hex}" não é #rrggbb`);
+  const a = clamp01(amount);
+  const canais = [1, 3, 5].map((i) => {
+    const c = parseInt(hex.slice(i, i + 2), 16);
+    return Math.round(c * (1 - a));
+  });
+  return "#" + canais.map((c) => c.toString(16).padStart(2, "0")).join("");
+}

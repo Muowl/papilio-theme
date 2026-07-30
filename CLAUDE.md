@@ -93,8 +93,10 @@ As cores extraídas alimentam `anchors:` no YAML. A passagem de âncora para
       contraste (criar `scripts/check_contrast.ts` que valida razões WCAG
       de cada role de sintaxe contra bg0 e falha o build se degradar)
 - [ ] Fase 3 — Variante "Papilio Blood Blossom" (mais saturada, para quem quer drama)
-- [ ] Fase 4 — Export Base24/Tinted8 (ecossistema tinted-theming) em
-      `src/generators/base24.ts` → destrava terminal, tmux, etc.
+- [x] Fase 4 — Export Base24 (ecossistema tinted-theming) em
+      `src/generators/base24.ts` → `themes/papilio-base24.yaml`. Os slots
+      ANSI espelham `roles.terminal` (+ `ansiBright`), então o terminal
+      tematizado fica idêntico ao integrado do VSCode e herda os gates.
 - [ ] Fase 5 — Alvos diretos: Windows Terminal, Zen Browser (aproveitar o
       aprendizado do zen-lucid-tabs)
 - [ ] Publicação: empacotar com vsce. ATENÇÃO — projeto fan-made: o nome

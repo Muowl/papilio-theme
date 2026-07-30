@@ -4,6 +4,7 @@ import { Resvg } from "@resvg/resvg-js";
 import { loadPalette } from "./lib/palette";
 import { generateVscodeTheme } from "./generators/vscode";
 import { generateLogoSvg } from "./generators/logo";
+import { generateBase24Scheme } from "./generators/base24";
 
 const ROOT = join(import.meta.dirname, "..");
 const PALETTE = join(ROOT, "palette", "papilio.yaml");
@@ -30,6 +31,10 @@ const logoPng = new Resvg(logoSvg, { fitTo: { mode: "width", value: 512 } })
 writeFileSync(join(ASSETS_DIR, "logo.png"), logoPng);
 console.log(`✔ Logo: ${join(ASSETS_DIR, "logo.png")}`);
 
+// --- Base24 (ecossistema tinted-theming: terminal, tmux, shells) ---
+const base24Out = join(OUT_DIR, `${palette.meta.slug}-base24.yaml`);
+writeFileSync(base24Out, generateBase24Scheme(palette));
+console.log(`✔ Base24: ${base24Out}`);
+
 // --- Futuro: outros alvos entram aqui ---
-// import { generateBase24Scheme } from "./generators/base24";
 // import { generateWindowsTerminal } from "./generators/windows-terminal";

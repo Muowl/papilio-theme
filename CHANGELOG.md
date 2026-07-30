@@ -7,6 +7,15 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- **Export Base24** (`src/generators/base24.ts` → `themes/papilio-base24.yaml`),
+  fase 4 do roadmap: destrava os templates do ecossistema tinted-theming
+  (terminal, tmux, shells). base08–base0E e base12–base17 espelham os slots
+  ANSI de `roles.terminal` (com `ansiBright`), então um terminal tematizado
+  via Base24 fica idêntico ao terminal integrado do VSCode e herda os gates
+  de contraste e unicidade. Divergência deliberada: base0B (strings nos
+  templates) é o jade do `success`, não o blossom — em terminal, verde
+  significa diff/ok, e correção de terminal vence fidelidade de string.
+
 - **O tema agora é testado token a token** (`scripts/check_tokens.ts`, parte do
   `npm run check`): os fixtures de `tests/fixtures/` são tokenizados com o motor
   do próprio VS Code (vscode-textmate + vscode-oniguruma) e as gramáticas
