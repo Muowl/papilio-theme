@@ -35,6 +35,70 @@ export const ANSI_BRIGHT = 0.22;
 
 const HEX_RE = /^#[0-9a-fA-F]{6}$/;
 
+/**
+ * Chapas semitransparentes que o VSCode desenha ATRÁS do texto: realce de
+ * busca, blocos de merge, linha do stack frame, match do peek view.
+ *
+ * O olho lê a cor COMPOSTA, não o token — medir contraste contra `bg0` nesses
+ * casos produz um número que ninguém enxerga. O find match estava em alpha
+ * 0.35, o que derrubava comentário para 2.34:1 sobre a chapa enquanto o gate
+ * reportava ✔, porque o gate só olhava para cores opacas.
+ *
+ * Mora aqui, e não no gerador, porque o validador precisa exatamente dos
+ * mesmos alphas (regra 4: constante compartilhada não se duplica).
+ */
+export interface Chapa {
+  /** Token da palette que tinge a chapa. */
+  token: string;
+  /** Opacidade da chapa sobre o fundo. */
+  alpha: number;
+  /** Token de fundo sobre o qual ela é composta. */
+  fundo: string;
+}
+
+// Os alphas param um degrau ABAIXO do teto que ainda daria 3:1. Encostar no
+// piso é o que deixou o crimson sem margem por uma versão inteira: qualquer
+// ajuste futuro na palette quebrava o gate.
+export const CHAPAS: Record<string, Chapa> = {
+  "find match": { token: "gold", alpha: 0.21, fundo: "bg0" },
+  "find match (outros)": { token: "gold", alpha: 0.16, fundo: "bg0" },
+  "stack frame": { token: "gold", alpha: 0.18, fundo: "bg0" },
+  "stack frame focado": { token: "success", alpha: 0.2, fundo: "bg0" },
+  "merge: current header": { token: "crimson", alpha: 0.26, fundo: "bg0" },
+  "merge: current content": { token: "crimson", alpha: 0.14, fundo: "bg0" },
+  "merge: incoming header": { token: "dusk", alpha: 0.26, fundo: "bg0" },
+  "merge: incoming content": { token: "dusk", alpha: 0.14, fundo: "bg0" },
+  "mergeEditor: palavra": { token: "gold", alpha: 0.21, fundo: "bg0" },
+  "peek: match": { token: "gold", alpha: 0.17, fundo: "bg1" },
+  "diff: linha inserida": { token: "success", alpha: 0.08, fundo: "bg0" },
+  "diff: linha removida": { token: "error", alpha: 0.08, fundo: "bg0" },
+};
+
+/** Separa um #rrggbb em canais 0-255. */
+function canais(hex: string): [number, number, number] {
+  return [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)) as [number, number, number];
+}
+
+/** A chapa como o VSCode a consome: #rrggbbaa. */
+export function chapa(p: PaletteFile, nome: string): string {
+  const ch = CHAPAS[nome];
+  if (!ch) throw new Error(`chapa desconhecida: ${nome}`);
+  return alpha(p.palette[ch.token], ch.alpha);
+}
+
+/**
+ * A cor OPACA que a chapa produz sobre seu fundo — o que o olho vê e o que
+ * o contraste do texto por cima precisa ser medido contra.
+ */
+export function chapaComposta(p: PaletteFile, nome: string): string {
+  const ch = CHAPAS[nome];
+  if (!ch) throw new Error(`chapa desconhecida: ${nome}`);
+  const frente = canais(p.palette[ch.token]);
+  const fundo = canais(p.palette[ch.fundo]);
+  const mix = frente.map((f, i) => Math.round(f * ch.alpha + fundo[i] * (1 - ch.alpha)));
+  return "#" + mix.map((v) => v.toString(16).padStart(2, "0")).join("");
+}
+
 /** Carrega e valida a fonte da verdade. */
 export function loadPalette(path: string): PaletteFile {
   const data = load(readFileSync(path, "utf8")) as PaletteFile;

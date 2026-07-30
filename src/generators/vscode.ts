@@ -1,4 +1,4 @@
-import { PaletteFile, resolve, alpha, lighten, ansiBright } from "../lib/palette";
+import { PaletteFile, resolve, alpha, lighten, ansiBright, chapa } from "../lib/palette";
 
 /**
  * Gera o JSON de tema do VSCode a partir da fonte da verdade.
@@ -11,6 +11,9 @@ export function generateVscodeTheme(p: PaletteFile): object {
   const ui = (role: string) => resolve(p, "ui", role);
   const ansi = (slot: string) => resolve(p, "terminal", slot);
   const bright = (slot: string) => ansiBright(p, slot);
+  // Chapas desenhadas atrás do texto: alpha definido em lib/palette.ts, onde
+  // o validador lê o mesmo valor para medir o contraste sobre a cor composta.
+  const ch = (nome: string) => chapa(p, nome);
 
   return {
     $schema: "vscode://schemas/color-theme",
@@ -26,8 +29,13 @@ export function generateVscodeTheme(p: PaletteFile): object {
       "editor.selectionBackground": c.selection,
       "editor.selectionHighlightBackground": alpha(c.selection, 0.6),
       "editor.wordHighlightBackground": alpha(c.bg3, 0.7),
-      "editor.findMatchBackground": alpha(c.gold, 0.35),
-      "editor.findMatchHighlightBackground": alpha(c.gold, 0.18),
+      // O preenchimento sozinho precisava de alpha alto para o match saltar, e
+      // era isso que apagava o texto por baixo. A borda devolve a visibilidade
+      // sem chapar o código — o realce passa a ser contorno, não mancha.
+      "editor.findMatchBackground": ch("find match"),
+      "editor.findMatchBorder": c.gold,
+      "editor.findMatchHighlightBackground": ch("find match (outros)"),
+      "editor.findMatchHighlightBorder": alpha(c.gold, 0.5),
       "editor.lineHighlightBackground": alpha(c.bg2, 0.5),
       // O default desenha uma borda #282828 por cima do realce quente da linha
       // atual. Transparente para não sobrar contorno cinza.
@@ -69,12 +77,27 @@ export function generateVscodeTheme(p: PaletteFile): object {
       "editorOverviewRuler.modifiedForeground": c.gold,
       "editorOverviewRuler.deletedForeground": c.error,
 
-      // Bracket pair colorization
-      "editorBracketHighlight.foreground1": c.crimson,
+      // Bracket pair colorization. Três correções de uma vez:
+      //
+      // 1. O nível 1 era crimson e o bracket não fechado é `error`: dois
+      //    vermelhos a ΔE 3.0 já em visão normal. O sinal de erro parecia um
+      //    bracket comum — falha funcional, não estética. Nível 1 foi para
+      //    `dusk`, que deixa o vermelho livre para significar só "está errado"
+      //    (e tira o crimson do lugar mais repetido da tela).
+      // 2. Os níveis 2 e 5 eram gold e ember, ΔE 4.1 sob protanopia — a
+      //    colisão que o CLAUDE.md proíbe sem um segundo canal de distinção.
+      //    Bracket não tem nenhum: é só cor. Nível 5 foi para `plum`.
+      // 3. `foreground6` tem default #00000000 no VSCode. Como não era
+      //    definido, um bracket no 6º nível de aninhamento ficava INVISÍVEL.
+      //    Vai em `fg1`: o nível mais fundo cai na cor de pontuação.
+      //
+      // Pior par do conjunto: ΔE 2.9 -> 6.2.
+      "editorBracketHighlight.foreground1": c.dusk,
       "editorBracketHighlight.foreground2": c.gold,
       "editorBracketHighlight.foreground3": c.ghost,
       "editorBracketHighlight.foreground4": c.blossom,
-      "editorBracketHighlight.foreground5": c.ember,
+      "editorBracketHighlight.foreground5": c.plum,
+      "editorBracketHighlight.foreground6": c.fg1,
       "editorBracketHighlight.unexpectedBracket.foreground": c.error,
 
       // Gutter / diff
@@ -83,8 +106,8 @@ export function generateVscodeTheme(p: PaletteFile): object {
       "editorGutter.deletedBackground": c.error,
       "diffEditor.insertedTextBackground": alpha(c.success, 0.12),
       "diffEditor.removedTextBackground": alpha(c.error, 0.12),
-      "diffEditor.insertedLineBackground": alpha(c.success, 0.08),
-      "diffEditor.removedLineBackground": alpha(c.error, 0.08),
+      "diffEditor.insertedLineBackground": ch("diff: linha inserida"),
+      "diffEditor.removedLineBackground": ch("diff: linha removida"),
       "diffEditor.border": c.bg3,
       // Sem isto a hachura das regiões vazias do diff lado a lado sai no
       // cinza #cccccc33 do default — a maior mancha fria da tela de diff.
@@ -107,10 +130,10 @@ export function generateVscodeTheme(p: PaletteFile): object {
       // Merge de conflitos — 12 chaves que estavam todas ausentes. Os defaults
       // do VS Code são teal (current) e azul (incoming), em blocos grandes no
       // meio do editor: era o maior vazamento frio do tema.
-      "merge.currentHeaderBackground": alpha(c.crimson, 0.4),
-      "merge.currentContentBackground": alpha(c.crimson, 0.16),
-      "merge.incomingHeaderBackground": alpha(c.dusk, 0.4),
-      "merge.incomingContentBackground": alpha(c.dusk, 0.16),
+      "merge.currentHeaderBackground": ch("merge: current header"),
+      "merge.currentContentBackground": ch("merge: current content"),
+      "merge.incomingHeaderBackground": ch("merge: incoming header"),
+      "merge.incomingContentBackground": ch("merge: incoming content"),
       "merge.commonHeaderBackground": alpha(c.bg3, 0.7),
       "merge.commonContentBackground": alpha(c.bg3, 0.35),
       "merge.border": c.bg3,
@@ -145,7 +168,7 @@ export function generateVscodeTheme(p: PaletteFile): object {
       "welcomePage.progress.background": c.bg3,
       "welcomePage.progress.foreground": ui("accent"),
       "mergeEditor.change.background": alpha(c.gold, 0.14),
-      "mergeEditor.change.word.background": alpha(c.gold, 0.3),
+      "mergeEditor.change.word.background": ch("mergeEditor: palavra"),
       "mergeEditor.conflict.unhandledUnfocused.border": alpha(c.error, 0.5),
       "mergeEditor.conflict.unhandledFocused.border": c.error,
       "mergeEditor.conflict.handledUnfocused.border": alpha(c.success, 0.4),
@@ -375,8 +398,8 @@ export function generateVscodeTheme(p: PaletteFile): object {
       "debugToolBar.border": c.bg3,
       "debugIcon.breakpointForeground": c.error,
       "debugIcon.breakpointDisabledForeground": c.muted,
-      "editor.stackFrameHighlightBackground": alpha(c.gold, 0.2),
-      "editor.focusedStackFrameHighlightBackground": alpha(c.success, 0.2),
+      "editor.stackFrameHighlightBackground": ch("stack frame"),
+      "editor.focusedStackFrameHighlightBackground": ch("stack frame focado"),
 
       // Testes
       "testing.iconPassed": c.success,
@@ -403,13 +426,13 @@ export function generateVscodeTheme(p: PaletteFile): object {
       "peekViewTitleLabel.foreground": c.fg0,
       "peekViewTitleDescription.foreground": c.muted,
       "peekViewEditor.background": c.bg1,
-      "peekViewEditor.matchHighlightBackground": alpha(c.gold, 0.3),
+      "peekViewEditor.matchHighlightBackground": ch("peek: match"),
       "peekViewResult.background": c.bg1,
       "peekViewResult.selectionBackground": c.bg2,
       "peekViewResult.selectionForeground": c.fg0,
       "peekViewResult.lineForeground": c.fg1,
       "peekViewResult.fileForeground": c.fg0,
-      "peekViewResult.matchHighlightBackground": alpha(c.gold, 0.3),
+      "peekViewResult.matchHighlightBackground": ch("peek: match"),
 
       // Git decorations
       "gitDecoration.modifiedResourceForeground": c.gold,
@@ -544,8 +567,22 @@ export function generateVscodeTheme(p: PaletteFile): object {
       // entity.other.attribute-name, e sem isto herdariam o itálico da regra
       // de atributo HTML — o guia de estilo restringe itálico a comentário,
       // parâmetro e atributo HTML.
+      //
+      // A lista precisa cobrir SCSS e LESS explicitamente. SCSS reaproveita os
+      // escopos `.css` para classe/id/pseudo, mas tem os seus próprios para
+      // `%placeholder` e para o sufixo `&__elem` — que é como BEM escreve
+      // quase todo seletor. LESS não reaproveita nada: usa sufixo `.less` em
+      // tudo, então nenhuma regra acima o alcançava e TODO seletor de classe
+      // em arquivo .less saía itálico e em `dusk`. Era exatamente o bug que
+      // este bloco existe para evitar, só que fora do .css.
       { scope: ["entity.other.attribute-name.class.css", "entity.other.attribute-name.id.css",
-                "entity.other.attribute-name.pseudo-class.css", "entity.other.attribute-name.pseudo-element.css"],
+                "entity.other.attribute-name.pseudo-class.css", "entity.other.attribute-name.pseudo-element.css",
+                "entity.other.attribute-name.placeholder.css",
+                "entity.other.attribute-name.parent-selector-suffix.css",
+                "entity.other.attribute-name.class.less", "entity.other.attribute-name.id.less",
+                "entity.other.attribute-name.pseudo-class.less", "entity.other.attribute-name.pseudo-element.less",
+                "entity.other.attribute-name.pseudo-class.extend.less",
+                "entity.other.attribute-name.parent.less"],
         settings: { foreground: syn("type"), fontStyle: "" } },
       { scope: ["support.type.property-name.css"],
         settings: { foreground: syn("variable") } },

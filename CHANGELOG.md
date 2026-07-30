@@ -23,12 +23,60 @@ This project follows [Semantic Versioning](https://semver.org/).
   (the JSX component case) stays at ΔE 12.3 under deuteranopia, still far above
   the 6.4 the palette already accepts for `gold` × `ember`.
 
+- **Bracket pair colours rearranged** to `dusk, gold, ghost, blossom, plum, fg1`.
+  Level 1 was `crimson` while an unmatched bracket is `error` — two reds at
+  ΔE 3.0 in ordinary vision, so the error signal looked like a normal level-1
+  bracket. Levels 2 and 5 were `gold` and `ember`, the pairing CLAUDE.md forbids
+  without a second channel of distinction; brackets have none. The worst pair in
+  the set goes from **ΔE 2.9 to 6.2**. Taking crimson out of the most-repeated
+  glyph on screen also serves the "use it sparingly" rule.
+
 ### Fixed
 
+- **A search hit made the code under it unreadable.** `editor.findMatchBackground`
+  was `gold` at alpha 0.35; composited over `bg0` that plate drops comments to
+  **2.34:1**. Every translucent plate drawn behind text had the same blind spot —
+  merge headers reached 2.49:1, the peek-view match 2.42:1 — because the contrast
+  gate only ever measured opaque colours against `bg0`. Alphas are now set a step
+  below the ceiling that still clears 3:1, and the find match gains a solid border
+  so it stays easy to spot without flooding the text.
+- **Brackets nested six deep were invisible.** The theme defined
+  `editorBracketHighlight.foreground1` through `5`, but VS Code registers
+  `foreground6` with a default of `#00000000` — fully transparent. Level 6 now
+  resolves to `fg1`, so the deepest level falls back to the punctuation colour.
+- **Every class selector in a `.less` file was italic.** The rule that stops CSS
+  selectors from inheriting the HTML-attribute italic listed only `.css`-suffixed
+  scopes. LESS uses its own `.less` suffix throughout, so nothing matched it, and
+  SCSS leaked through `%placeholder` and the `&__elem` parent-selector suffix —
+  which is how BEM writes nearly every selector. Verified against VS Code's
+  published grammars rather than by inspection.
 - The contrast gate now checks that `cursor` still matches `crimson`. The palette
   format only takes literal hex, so `cursor` repeats the signature colour by hand
   and nothing stopped the two from drifting apart on the next adjustment — the
   same failure mode already guarded for the README and `galleryBanner` tables.
+- The contrast gate now measures text over composited plates, using the alpha
+  table in `src/lib/palette.ts` that the generator reads too, so the two cannot
+  diverge.
+
+### Known issues
+
+Found while auditing the above; not addressed here.
+
+- `list.highlightForeground` — the matched characters in quick open and the
+  suggest widget — sits at **4.35:1** over `bg2`, short of the 4.5 target. The
+  crimson change lifted it from 3.85:1 but not far enough.
+- `editorWhitespace` and the indent guides are `bg3` over `bg0`, **1.36:1**.
+  Near-invisible with whitespace rendering on. May well be deliberate.
+- The README claims no pair of syntax colours sits closer than ΔE 8 under
+  simulated colour blindness. That has never been true: 14 pairs are below it,
+  the worst at 7.7 (`keyword` × `punctuation` under deuteranopia). The sentence
+  needs revising or the guarantee needs enforcing.
+- The colour-blindness ΔE maths that the whole palette rests on lives only in
+  throwaway scripts. The contrast gate checks WCAG ratios but nothing checks
+  perceptual separation, which is what the lightness ladder was built to protect.
+- SCSS keyframe stops (`from`, `to`, `50%`) and `@forward` module names resolve
+  to `dusk` + italic through the generic attribute rule. Odd, but distinct from
+  the selector bug fixed above.
 
 ## [0.1.0] — 2026-07-27
 

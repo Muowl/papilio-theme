@@ -12,7 +12,7 @@
 
 import { join } from "node:path";
 import { readFileSync } from "node:fs";
-import { loadPalette, lighten, ansiBright } from "../src/lib/palette";
+import { loadPalette, lighten, ansiBright, CHAPAS, chapaComposta } from "../src/lib/palette";
 
 const ALVO_PADRAO = 4.5;
 const ALVOS_ESPECIAIS: Record<string, number> = {
@@ -140,6 +140,29 @@ tabela(`pares de UI:`, [
   linha("descrição do peek view", c.muted, c.bg2, 3.0),
   linha("descrição em lista focada", c.muted, c.bg2, 3.0),
 ]);
+
+// 3b. Texto sobre as chapas semitransparentes.
+// O gate media tudo contra bg0, mas um realce de busca ou um bloco de merge
+// desenha uma chapa ATRÁS do código: o que o olho lê é a cor composta. O find
+// match estava em alpha 0.35 e derrubava comentário para 2.34:1 enquanto esta
+// tabela inteira reportava ✔, simplesmente por não existir.
+//
+// Piso 3.0 e não 4.5: a chapa é transitória e sempre acompanhada de outro
+// sinal (borda, gutter, cursor). O que não se aceita é o realce APAGAR o texto
+// que ele deveria estar destacando.
+const PISO_CHAPA = 3.0;
+tabela(
+  "texto sobre chapas compostas:",
+  Object.keys(CHAPAS).flatMap((nome) => {
+    const composta = chapaComposta(p, nome);
+    // muted (comentário) e dusk (atributo) são os tokens mais escuros que
+    // aparecem por cima de código — se eles passam, o resto passa.
+    return [
+      linha(`${nome} / comentário`, c.muted, composta, PISO_CHAPA),
+      linha(`${nome} / atributo`, c[p.roles.syntax.attribute], composta, PISO_CHAPA),
+    ];
+  })
+);
 
 // 4. Cópias manuais de hex fora do YAML.
 // O gerador é limpo, mas README e package.json repetem cores à mão e nada
