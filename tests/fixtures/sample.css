@@ -1,0 +1,3 @@
+/* comentário de bloco */
+.cartao:hover::after { color: #fff; }
+#principal { margin: 0; }

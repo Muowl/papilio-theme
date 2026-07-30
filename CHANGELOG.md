@@ -5,6 +5,31 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **O tema agora é testado token a token** (`scripts/check_tokens.ts`, parte do
+  `npm run check`): os fixtures de `tests/fixtures/` são tokenizados com o motor
+  do próprio VS Code (vscode-textmate + vscode-oniguruma) e as gramáticas
+  publicadas (vendorizadas em `tests/grammars/`), e 37 asserções travam cor
+  final e itálico de cada trecho — o "Inspect Editor Tokens and Scopes"
+  automatizado. Contra o gerador anterior à correção do LESS, o check reprova
+  exatamente os 7 casos que a correção cobre; contra o atual, passam todos.
+- **Gate de separação perceptual sob daltonismo** (`scripts/check_cvd.ts`,
+  parte do `npm run check`): simula protanopia e deuteranopia (matrizes de
+  Machado et al. 2009, severidade 1.0) e mede ΔE como distância OKLAB × 100 —
+  a mesma matemática que calibrou a escada de luminosidade, antes viva só em
+  scripts descartáveis. Três frentes: piso global 6.0 entre cores de sintaxe
+  (roles de estado de diff isentos, como o YAML já documentava), pisos
+  nomeados para os pares que o design cita textualmente, e o conjunto de
+  brackets — agora a constante compartilhada `BRACKETS` em `src/lib/palette.ts`,
+  que o gerador pinta e o check mede — contra o bracket de erro.
+  `--matriz` imprime todos os pares para inspeção ao ajustar a palette.
+
+  O gate também pôs número no custo do clareamento do crimson, que o commit
+  original não mediu: tag × pontuação sob **deuteranopia** caiu de 7.7 para
+  6.7, e comentário × crimson sob protanopia de 8.6 para 7.1. Ambos seguem
+  acima dos pisos (6.0 e 6.5) e agora estão travados contra regressão.
+
 ### Changed
 
 - **`crimson` lightened from `#df494d` to `#ea5356`** (OKLCH L 0.62 → 0.65).
@@ -67,13 +92,6 @@ Found while auditing the above; not addressed here.
   crimson change lifted it from 3.85:1 but not far enough.
 - `editorWhitespace` and the indent guides are `bg3` over `bg0`, **1.36:1**.
   Near-invisible with whitespace rendering on. May well be deliberate.
-- The README claims no pair of syntax colours sits closer than ΔE 8 under
-  simulated colour blindness. That has never been true: 14 pairs are below it,
-  the worst at 7.7 (`keyword` × `punctuation` under deuteranopia). The sentence
-  needs revising or the guarantee needs enforcing.
-- The colour-blindness ΔE maths that the whole palette rests on lives only in
-  throwaway scripts. The contrast gate checks WCAG ratios but nothing checks
-  perceptual separation, which is what the lightness ladder was built to protect.
 - SCSS keyframe stops (`from`, `to`, `50%`) and `@forward` module names resolve
   to `dusk` + italic through the generic attribute rule. Odd, but distinct from
   the selector bug fixed above.

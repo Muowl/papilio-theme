@@ -56,7 +56,8 @@ palette:
   fg1: "#a39187"        # L 0.67 — texto secundário, operadores, pontuação
   muted: "#897987"      # L 0.59 — comentários. Migrou do marrom-avermelhado para o
                         # mauve das sombras do cabelo: sai do aglomerado quente e
-                        # deixa de colidir com crimson sob protanopia (2.9 → 8.6)
+                        # deixa de colidir com crimson sob protanopia (2.9 → 8.6 na
+                        # época; 7.1 com o crimson clareado — piso 6.5 no check_cvd)
 
   # Cores de identidade
   crimson: "#ea5356"    # L 0.65 — a cor-assinatura (olhos / pontas do cabelo).

@@ -1,4 +1,4 @@
-import { PaletteFile, resolve, alpha, lighten, ansiBright, chapa } from "../lib/palette";
+import { PaletteFile, resolve, alpha, lighten, ansiBright, chapa, BRACKETS } from "../lib/palette";
 
 /**
  * Gera o JSON de tema do VSCode a partir da fonte da verdade.
@@ -77,27 +77,14 @@ export function generateVscodeTheme(p: PaletteFile): object {
       "editorOverviewRuler.modifiedForeground": c.gold,
       "editorOverviewRuler.deletedForeground": c.error,
 
-      // Bracket pair colorization. Três correções de uma vez:
-      //
-      // 1. O nível 1 era crimson e o bracket não fechado é `error`: dois
-      //    vermelhos a ΔE 3.0 já em visão normal. O sinal de erro parecia um
-      //    bracket comum — falha funcional, não estética. Nível 1 foi para
-      //    `dusk`, que deixa o vermelho livre para significar só "está errado"
-      //    (e tira o crimson do lugar mais repetido da tela).
-      // 2. Os níveis 2 e 5 eram gold e ember, ΔE 4.1 sob protanopia — a
-      //    colisão que o CLAUDE.md proíbe sem um segundo canal de distinção.
-      //    Bracket não tem nenhum: é só cor. Nível 5 foi para `plum`.
-      // 3. `foreground6` tem default #00000000 no VSCode. Como não era
-      //    definido, um bracket no 6º nível de aninhamento ficava INVISÍVEL.
-      //    Vai em `fg1`: o nível mais fundo cai na cor de pontuação.
-      //
-      // Pior par do conjunto: ΔE 2.9 -> 6.2.
-      "editorBracketHighlight.foreground1": c.dusk,
-      "editorBracketHighlight.foreground2": c.gold,
-      "editorBracketHighlight.foreground3": c.ghost,
-      "editorBracketHighlight.foreground4": c.blossom,
-      "editorBracketHighlight.foreground5": c.plum,
-      "editorBracketHighlight.foreground6": c.fg1,
+      // Bracket pair colorization. A sequência vive em BRACKETS
+      // (src/lib/palette.ts) porque o check de daltonismo mede o mesmo
+      // conjunto: brackets não têm segundo canal além da cor. O histórico
+      // (crimson colidindo com error, gold com ember, foreground6
+      // transparente) está documentado lá e no CHANGELOG.
+      ...Object.fromEntries(
+        BRACKETS.map((token, i) => [`editorBracketHighlight.foreground${i + 1}`, c[token]])
+      ),
       "editorBracketHighlight.unexpectedBracket.foreground": c.error,
 
       // Gutter / diff

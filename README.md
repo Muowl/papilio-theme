@@ -31,8 +31,10 @@ pick it with **Preferences: Color Theme** (`Ctrl+K Ctrl+T`).
   IntelliSense icons, which fall back to teal and purple when left unset.
 - **Designed for colour blindness.** Every syntax pair is separated in
   lightness, not only in hue: red-green deficiency collapses the warm hues onto
-  one axis, so lightness is what survives. No pair of syntax colours sits closer
-  than ΔE 8 under simulated protanopia or deuteranopia.
+  one axis, so lightness is what survives. The build enforces a ΔE floor of 6
+  between syntax colours under simulated protanopia and deuteranopia (diff/state
+  colours are exempt — they always carry a second signal), and the pairs the
+  design leans on hardest are pinned individually. See `scripts/check_cvd.ts`.
 
 ## Palette
 

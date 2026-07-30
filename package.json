@@ -42,7 +42,7 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run build",
-    "check": "tsx scripts/check_contrast.ts",
+    "check": "tsx scripts/check_contrast.ts && tsx scripts/check_cvd.ts && tsx scripts/check_tokens.ts",
     "build": "npm run check && tsx src/generate.ts",
     "watch": "tsx watch src/generate.ts"
   },
@@ -52,6 +52,8 @@
     "@types/node": "^22.10.0",
     "js-yaml": "^4.1.0",
     "tsx": "^4.19.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "vscode-oniguruma": "^2.0.1",
+    "vscode-textmate": "^9.3.2"
   }
 }

@@ -33,6 +33,17 @@ const GRUPOS: readonly RoleGroup[] = ["syntax", "ui", "terminal"];
  */
 export const ANSI_BRIGHT = 0.22;
 
+/**
+ * Cores da colorização de pares de brackets, nível 1 a 6 (o VSCode registra
+ * até foreground6; sem o 6º, brackets fundos ficam transparentes).
+ *
+ * Brackets não têm segundo canal de distinção — é só cor, sem itálico nem
+ * contexto — então este conjunto é o mais sensível a daltonismo do tema.
+ * Vive aqui para que o gerador pinte e o check de daltonismo meça EXATAMENTE
+ * o mesmo conjunto (regra 4: constante compartilhada não se duplica).
+ */
+export const BRACKETS = ["dusk", "gold", "ghost", "blossom", "plum", "fg1"] as const;
+
 const HEX_RE = /^#[0-9a-fA-F]{6}$/;
 
 /**
