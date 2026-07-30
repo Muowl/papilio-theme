@@ -3,6 +3,33 @@
 All notable changes to Papilio are documented here.
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- **`crimson` lightened from `#df494d` to `#ea5356`** (OKLCH L 0.62 → 0.65).
+  It was the tightest colour in the theme: **4.54:1** against `bg0`, clearing the
+  4.5 floor by 0.04 with no headroom left for any future adjustment. Now
+  **5.13:1**. Hue (23°) and chroma (0.186) are untouched, so the character
+  reading does not move — this is a lightness change only. It affects every role
+  built on the signature colour: `keyword`, `tag`, `builtin`, `ui.accent`,
+  `cursor` and ANSI red (plus `bright-red`, derived).
+
+  The ceiling is set by colour blindness, not by contrast. In `<div>` the tag sits
+  directly against `punctuation` (`fg1`), and that separation decays as crimson
+  lightens: ΔE 13.9 → 10.9 under simulated protanopia. Past L ≈ 0.66 it drops
+  below 10 and the red channel saturates at `ff`, dragging the hue off 23°.
+  L 0.65 takes +13% contrast while staying short of that knee. `tag` × `type`
+  (the JSX component case) stays at ΔE 12.3 under deuteranopia, still far above
+  the 6.4 the palette already accepts for `gold` × `ember`.
+
+### Fixed
+
+- The contrast gate now checks that `cursor` still matches `crimson`. The palette
+  format only takes literal hex, so `cursor` repeats the signature colour by hand
+  and nothing stopped the two from drifting apart on the next adjustment — the
+  same failure mode already guarded for the README and `galleryBanner` tables.
+
 ## [0.1.0] — 2026-07-27
 
 First public release.

@@ -42,7 +42,7 @@ pick it with **Preferences: Color Theme** (`Ctrl+K Ctrl+T`).
 |---|---|---|
 | `bg0` | `#191313` | editor background |
 | `fg0` | `#ece0d1` | primary text |
-| `crimson` | `#df494d` | keywords, tags, accent |
+| `crimson` | `#ea5356` | keywords, tags, accent |
 | `blossom` | `#ffaea9` | strings |
 | `ghost` | `#90d0e1` | functions, links |
 | `ember` | `#f0a068` | types, regex, escapes |

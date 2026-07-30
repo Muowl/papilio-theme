@@ -166,6 +166,16 @@ if (!bloco) {
   }
 }
 
+// `cursor` repete o hex do `crimson` à mão (a palette só aceita hex literal,
+// não referências). Nada impedia os dois de divergirem no próximo ajuste —
+// mesma classe de bug do README acima.
+if (c.cursor.toLowerCase() !== c.crimson.toLowerCase()) {
+  console.error(
+    `\n✘ palette — cursor ${c.cursor} ≠ crimson ${c.crimson} (cursor deve acompanhar crimson)`
+  );
+  falhas++;
+}
+
 const pkg = JSON.parse(readFileSync(join(raiz, "package.json"), "utf8"));
 const banner = pkg.galleryBanner?.color?.toLowerCase();
 if (banner && banner !== c.bg0.toLowerCase()) {

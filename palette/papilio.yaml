@@ -59,7 +59,15 @@ palette:
                         # deixa de colidir com crimson sob protanopia (2.9 → 8.6)
 
   # Cores de identidade
-  crimson: "#df494d"    # L 0.62 — a cor-assinatura (olhos / pontas do cabelo)
+  crimson: "#ea5356"    # L 0.65 — a cor-assinatura (olhos / pontas do cabelo).
+                        # Subiu de L 0.62 (#df494d): era o token mais apertado do
+                        # tema, 4.54:1 contra bg0 — 0.04 acima do piso, sem margem.
+                        # Matiz (h 23) e croma (C 0.186) intactos, só a L mudou.
+                        # O teto é a separação de `fg1` sob protanopia: tag e
+                        # pontuação encostam em <div>, e acima de L ~0.66 essa
+                        # distância cai abaixo de ΔE 10 (e o canal vermelho satura
+                        # em ff, arrastando o matiz). L 0.65 pega +13% de contraste
+                        # antes desse joelho
   dusk: "#6d84c4"       # L 0.62 — índigo do céu noturno; ATRIBUTOS além do ANSI blue
   plum: "#c796d3"       # L 0.74 — violeta do laço do chapéu e das sombras ameixa
   ember: "#f0a068"      # L 0.77 — laranja-brasa (pyro)
@@ -84,7 +92,7 @@ palette:
                         # Escurecido: separa de gold e ember, e fica mais discreto
 
   # Diversos
-  cursor: "#df494d"     # acompanha crimson
+  cursor: "#ea5356"     # acompanha crimson — cópia manual, manter em sincronia
 
 # ------------------------------------------------------------
 # ROLES: mapeamento semântico. Valores referenciam nomes da paleta.
