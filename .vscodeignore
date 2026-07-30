@@ -11,6 +11,8 @@ palette/**
 references/**
 scripts/**
 src/**
+tests/**
+themes/*-base24.yaml
 tsconfig.json
 *.vsix
 assets/*.svg
