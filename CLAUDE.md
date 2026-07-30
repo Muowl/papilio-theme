@@ -65,7 +65,11 @@ As cores extraídas alimentam `anchors:` no YAML. A passagem de âncora para
 - `ghost` (azul do Boo Tao) é o contraponto frio — funções e links.
 - Contraste alvo: cores de sintaxe legíveis sobre `bg0` em sessões longas
   (mirar ~4.5:1; comentários podem ficar abaixo de propósito, ~3:1).
-  `npm run check` valida sintaxe, terminal e pares de UI, e falha o build.
+  `npm run check` valida três frentes e falha o build: contraste WCAG
+  (sintaxe, terminal, UI e texto sobre chapas compostas), separação
+  perceptual sob daltonismo (`check_cvd.ts` — pisos de ΔE por par) e a
+  tokenização real contra as gramáticas do VS Code (`check_tokens.ts` —
+  cor final e itálico de fixtures em `tests/`).
 - Itálico apenas em: comentários, parâmetros, atributos HTML. Cuidado: seletores
   CSS de classe/id também são `entity.other.attribute-name` — a regra de CSS
   precisa de `fontStyle: ""` explícito para não herdar o itálico.
@@ -75,10 +79,12 @@ As cores extraídas alimentam `anchors:` no YAML. A passagem de âncora para
 - A paleta é quase toda quente (hue 0-40). `ghost`, `plum` e `dusk` são os
   contrapontos frios que dão separação de matiz à sintaxe — inclusive para quem
   tem deficiência de visão de cor vermelho-verde. Não colapsar tudo em vermelho.
-- `gold` (hue 36) e `ember` (hue 25) viram a mesma cor sob deuteranopia. Podem
-  coexistir só quando algo além da cor separa os dois: hoje `attribute` (gold) e
-  `type` (ember) convivem em HTML/JSX porque atributo é itálico. Ao criar um role
-  novo, não pareie gold com ember sem um segundo canal de distinção.
+- `gold` (hue 36) e `ember` (hue 25) viram quase a mesma cor sob deuteranopia
+  (ΔE 6.5 — o mínimo que a paleta aceita). Podem coexistir só quando algo além
+  da cor separa os dois. Hoje o gold vive fora da sintaxe densa (ANSI yellow,
+  diff `changed`, bracket nível 2), então o par não disputa leitura; o
+  `check_cvd.ts` trava essa distância. Ao criar um role novo, não pareie gold
+  com ember sem um segundo canal de distinção.
 
 ## Roadmap
 

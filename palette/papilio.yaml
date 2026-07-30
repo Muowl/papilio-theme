@@ -113,6 +113,12 @@ roles:
     comment: muted
     operator: fg1
     punctuation: fg1
+    # Tag em crimson é decisão fechada (2026-07): candidatos "mais calmos"
+    # (terracota #dd7a68, argila #d08b76) foram medidos e o par tag ×
+    # pontuação caiu para ΔE 4.6 e 2.7 sob protanopia — dessaturar o
+    # vermelho o empurra exatamente para o cinza-quente de fg1. Quem quiser
+    # menos vermelho no markup é público da variante saturada/sóbria, não
+    # deste role. Ver pares nomeados em scripts/check_cvd.ts.
     tag: crimson          # tags HTML/JSX
     # Atributo em dusk, não em gold. Gold e ember ocupavam o mesmo ponto para
     # quem tem daltonismo vermelho-verde (ΔE 0.6), e <Componente atributo=…>
@@ -135,6 +141,12 @@ roles:
   ui:
     accent: crimson       # badges, foco, statusbar highlights
     link: ghost
+    # Caracteres casados no quick open e no suggest. Era accent (crimson),
+    # que ficava 4.35:1 sobre bg2 — abaixo do piso, e clarear o crimson de
+    # novo custaria daltonismo. Ember passa folgado em todos os fundos de
+    # lista e é a brasa pyro: o realce vira faísca, e o crimson continua
+    # escasso como manda o guia.
+    list-highlight: ember
     terminal-bg: bg0      # terminal usa a tela do editor: bg1 derrubava o ANSI red para 4.32:1
 
   # Os 16 slots ANSI. Só as 8 bases são decididas aqui: o gerador deriva

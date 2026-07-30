@@ -83,13 +83,26 @@ This project follows [Semantic Versioning](https://semver.org/).
   table in `src/lib/palette.ts` that the generator reads too, so the two cannot
   diverge.
 
+### Fixed (cont.)
+
+- **Matched characters in quick open and the suggest widget were 4.35:1** over
+  `bg2`, short of the 4.5 floor. They now have their own role,
+  `ui.list-highlight`, set to `ember`: passes every list background with room
+  to spare, keeps crimson scarce, and the highlight reads as a pyro spark.
+  Lightening crimson again was rejected — the colour-blindness gate showed the
+  last lightening already cost separation (tag × punctuation 7.7 → 6.7 under
+  deuteranopia).
+- **The "quieter tag colour" question is settled, with data.** Desaturated
+  candidates (terracotta `#dd7a68`, clay `#d08b76`) were rendered side by side
+  with the current crimson and measured: tag × punctuation collapses to
+  ΔE 4.6 and 2.7 under protanopia (named floor: 10). Desaturating a warm red
+  slides it exactly onto `fg1`'s warm grey for the users the lightness ladder
+  protects. `tag: crimson` stays; the decision is recorded in the YAML.
+
 ### Known issues
 
-Found while auditing the above; not addressed here.
+Found while auditing; not addressed here.
 
-- `list.highlightForeground` — the matched characters in quick open and the
-  suggest widget — sits at **4.35:1** over `bg2`, short of the 4.5 target. The
-  crimson change lifted it from 3.85:1 but not far enough.
 - `editorWhitespace` and the indent guides are `bg3` over `bg0`, **1.36:1**.
   Near-invisible with whitespace rendering on. May well be deliberate.
 - SCSS keyframe stops (`from`, `to`, `50%`) and `@forward` module names resolve

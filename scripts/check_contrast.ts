@@ -139,6 +139,11 @@ tabela(`pares de UI:`, [
   // estarem nesta tabela — o gate só enxerga o que está listado aqui.
   linha("descrição do peek view", c.muted, c.bg2, 3.0),
   linha("descrição em lista focada", c.muted, c.bg2, 3.0),
+  // Caracteres casados do quick open/suggest: precisam passar em TODOS os
+  // fundos de lista (widget bg1, linha ativa bg2). Era o Known issue do
+  // accent a 4.35:1.
+  linha("realce de busca em lista (bg1)", c[p.roles.ui["list-highlight"]], c.bg1, ALVO_PADRAO),
+  linha("realce de busca em lista (bg2)", c[p.roles.ui["list-highlight"]], c.bg2, ALVO_PADRAO),
 ]);
 
 // 3b. Texto sobre as chapas semitransparentes.
