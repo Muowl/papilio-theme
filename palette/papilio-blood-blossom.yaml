@@ -30,7 +30,7 @@ palette:
   bg1: "#251517"
   bg2: "#321d1f"
   bg3: "#402726"
-  selection: "#572f2e"
+  selection: "#492827"  # seleção vinho — muted mantém 3.19:1, sintaxe preservada
 
   # Acentos: croma acima, matiz e L da base.
   crimson: "#f44853"    # a assinatura com mais sangue

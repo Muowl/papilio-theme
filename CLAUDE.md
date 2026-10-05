@@ -76,6 +76,10 @@ As cores extraídas alimentam `anchors:` no YAML. A passagem de âncora para
   perceptual sob daltonismo (`check_cvd.ts` — pisos de ΔE por par) e a
   tokenização real contra as gramáticas do VS Code (`check_tokens.ts` —
   cor final e itálico de fixtures em `tests/`).
+- Seleção preserva as cores da sintaxe: todos os roles são medidos sobre
+  `editor.selectionBackground`, com piso de projeto 3:1 (realce transitório,
+  não uma declaração de WCAG AA para texto normal). Autocomplete é medido
+  nas cores geradas, nos fundos normal e selecionado, com piso 4.5:1.
 - Itálico apenas em: comentários, parâmetros, atributos HTML. Cuidado: seletores
   CSS de classe/id também são `entity.other.attribute-name` — a regra de CSS
   precisa de `fontStyle: ""` explícito para não herdar o itálico.

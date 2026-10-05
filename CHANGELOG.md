@@ -3,6 +3,22 @@
 All notable changes to Papilio are documented here.
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- O autocomplete agora consome `ui.list-highlight` (`ember`) nos dois realces,
+  como o quick open. No item selecionado, o contraste sobe de 4.35:1 para
+  7.36:1 em Papilio e de 4.43:1 para 7.78:1 em Blood Blossom.
+- Seleção de texto escurecida nas duas variantes, preservando as cores da
+  sintaxe. Comentários e citações selecionados sobem de 2.97:1 para 3.21:1
+  na base e de 2.78:1 para 3.19:1 em Blood Blossom.
+- O gate verifica todos os roles de sintaxe sobre a seleção (piso de projeto
+  3:1) e as cores reais geradas do autocomplete sobre os dois fundos (4.5:1),
+  cobrindo consumidores que antes escapavam dos testes.
+- README corrigido para o contraste atual dos comentários (~4.5:1) e para
+  o escopo das simulações de daltonismo e dos pisos de contraste.
+
 ## [0.2.0] — 2026-07-30
 
 ### Added

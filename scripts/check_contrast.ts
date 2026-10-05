@@ -10,6 +10,7 @@
 //   2. roles.terminal contra o fundo do terminal (roles.ui.terminal-bg)
 //   3. pares de UI que o gerador monta à mão (texto sobre chapa)
 //   3b. texto sobre chapas semitransparentes compostas
+//   3c. todas as cores de sintaxe sobre a seleção de texto
 // ...e, só para a base, as cópias manuais de hex (README, package.json).
 //
 // Alvo padrão 4.5:1. Exceções deliberadas ficam em ALVOS_ESPECIAIS.
@@ -20,6 +21,7 @@ import { readFileSync } from "node:fs";
 import {
   PaletteFile, loadAllPalettes, lighten, ansiBright, CHAPAS, chapaComposta,
 } from "../src/lib/palette";
+import { generateVscodeTheme } from "../src/generators/vscode";
 
 const ALVO_PADRAO = 4.5;
 const ALVOS_ESPECIAIS: Record<string, number> = {
@@ -81,6 +83,9 @@ function rodaPaleta(p: PaletteFile): void {
   const c = p.palette;
   const termBg = c[p.roles.ui["terminal-bg"]];
   const nome = p.meta.name;
+  // Medir os consumidores reais impede o gate de aprovar um role que o
+  // autocomplete deixou de usar — foi o caso de list-highlight vs accent.
+  const { colors: cores } = generateVscodeTheme(p) as { colors: Record<string, string> };
 
   // 1. Sintaxe contra o fundo do editor
   tabela(
@@ -141,7 +146,7 @@ function rodaPaleta(p: PaletteFile): void {
     linha("inlay hint tipo", c.ember, c.bg0, ALVO_PADRAO),
     linha("title bar inativa", c.muted, c.bg1, 3.0),
     linha("placeholder do input", lighten(c.muted, 0.12), c.bg2, 3.0),
-    linha("texto sobre seleção", c.fg0, c.selection, ALVO_PADRAO),
+    linha("texto sobre seleção", cores["editor.foreground"], cores["editor.selectionBackground"], ALVO_PADRAO),
     // Consumidores de `muted` sobre bg2 que passavam despercebidos por não
     // estarem nesta tabela — o gate só enxerga o que está listado aqui.
     linha("descrição do peek view", c.muted, c.bg2, 3.0),
@@ -152,6 +157,25 @@ function rodaPaleta(p: PaletteFile): void {
     linha("realce de busca em lista (bg1)", c[p.roles.ui["list-highlight"]], c.bg1, ALVO_PADRAO),
     linha("realce de busca em lista (bg2)", c[p.roles.ui["list-highlight"]], c.bg2, ALVO_PADRAO),
   ]);
+
+  tabela(`[${nome}] realce do autocomplete (cores geradas):`,
+    ["highlightForeground", "focusHighlightForeground"].flatMap((realce) =>
+      ["background", "selectedBackground"].map((fundo) =>
+        linha(`${realce} / ${fundo}`,
+          cores[`editorSuggestWidget.${realce}`],
+          cores[`editorSuggestWidget.${fundo}`], ALVO_PADRAO)
+      )
+    )
+  );
+
+  // Mesmo piso de projeto das chapas transitórias: preservar a sintaxe
+  // durante a seleção, sem deixar comentários ou atributos desaparecerem.
+  // 3:1 é uma decisão de design; não equivale a WCAG AA para texto normal.
+  tabela(`[${nome}] roles.syntax sobre seleção:`,
+    Object.entries(p.roles.syntax).map(([role, token]) =>
+      linha(`${role} (${token})`, c[token], cores["editor.selectionBackground"], 3.0)
+    )
+  );
 
   // 3b. Texto sobre as chapas semitransparentes.
   // O gate media tudo contra bg0, mas um realce de busca ou um bloco de merge
