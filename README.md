@@ -18,9 +18,14 @@ pick it with **Preferences: Color Theme** (`Ctrl+K Ctrl+T`).
 
 ## What you get
 
-- **Every colour is contrast-checked.** Every syntax colour clears WCAG 4.5:1
-  against the editor background; comments sit at ~3.5:1 on purpose, so they
-  recede without disappearing. The build fails if a colour ever regresses.
+- **Contrast checks in both variants.** Primary syntax colours clear 4.5:1
+  against the editor background. Comments currently sit at ~4.5:1, with a
+  deliberate 3:1 floor for comments and Markdown quotes. Autocomplete matches
+  clear 4.5:1 on normal and selected rows. All syntax roles are checked against
+  the text-selection background at a project floor of 3:1, preserving syntax
+  colours while selected. That transient-state floor is a design choice, not
+  WCAG AA compliance for normal text. The build fails if a checked pair falls
+  below its floor.
 - **A terminal that actually works.** All 16 ANSI slots are distinct — blue and
   cyan are different colours, and every bright variant is visibly brighter than
   its base.
@@ -33,12 +38,14 @@ pick it with **Preferences: Color Theme** (`Ctrl+K Ctrl+T`).
   long sessions. **Papilio Blood Blossom** keeps the same lightness ladder and
   hues but turns up the chroma and sinks the background into wine — same
   readability floors, more drama. Both variants pass every gate below.
-- **Designed for colour blindness.** Every syntax pair is separated in
-  lightness, not only in hue: red-green deficiency collapses the warm hues onto
-  one axis, so lightness is what survives. The build enforces a ΔE floor of 6
-  between syntax colours under simulated protanopia and deuteranopia (diff/state
-  colours are exempt — they always carry a second signal), and the pairs the
-  design leans on hardest are pinned individually. See `scripts/check_cvd.ts`.
+- **Checked under simulated red-green colour blindness.** The palette uses
+  lightness differences as well as hue to separate syntax colours. The build
+  tests normal vision plus protanopia and deuteranopia with the Machado 2009
+  model at full severity, measuring distance in OKLAB. Distinct syntax tokens
+  have a project ΔE floor of 6; pairs involving tokens used only for diff states
+  have a lower floor of 2.5, supported by additional visual cues. Key pairs and
+  bracket colours have their own checks. These simulations do not cover
+  tritanopia or replace usability testing with people. See `scripts/check_cvd.ts`.
 
 ## Palette
 

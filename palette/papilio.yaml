@@ -40,7 +40,7 @@ palette:
   bg1: "#211918"        # sidebar, painéis
   bg2: "#2d2120"        # hover, item ativo em listas
   bg3: "#3a2b28"        # bordas, separadores
-  selection: "#4a2f2d"  # seleção de texto
+  selection: "#432a29"  # seleção de texto — muted mantém 3.21:1, sintaxe preservada
 
   # ESCADA DE LUMINOSIDADE
   # A ordem dos tokens abaixo é a ordem de L em OKLCH, do que recua ao que é

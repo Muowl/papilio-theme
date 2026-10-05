@@ -8,7 +8,7 @@ variant: "dark"
 palette:
   base00: "#191313" # fundo do editor (bg0)
   base01: "#211918" # painéis, statusbar (bg1)
-  base02: "#4a2f2d" # seleção de texto (selection)
+  base02: "#432a29" # seleção de texto (selection)
   base03: "#897987" # comentários (muted)
   base04: "#a39187" # texto secundário (fg1)
   base05: "#ece0d1" # texto principal (fg0)
