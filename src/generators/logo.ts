@@ -2,23 +2,34 @@ import type { PaletteFile } from "../lib/palette";
 
 /**
  * Logo do tema: o fantasminha Papilio (desenho original, flat).
- * Corpo em fg0 sobre bg0, olhos fechados em bg0 — nada além da palette.
- * O grupo é ampliado ao redor do centro para preencher bem o ícone.
+ * Silhueta contínua com braços integrados e cauda levemente assimétrica.
+ * Olhos grossos e boca espaçada preservam a expressão em miniaturas.
+ * Corpo em fg0 sobre bg0, língua em crimson — só cores da palette.
  */
 export function generateLogoSvg(p: PaletteFile): string {
   const bg = p.palette.bg0;
   const body = p.palette.fg0;
+  const accent = p.palette.crimson;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <title>Papilio — fantasminha</title>
   <rect width="512" height="512" rx="96" fill="${bg}"/>
-  <g transform="translate(256 260) scale(1.26) translate(-256 -260)">
-    <ellipse cx="146" cy="286" rx="22" ry="32" transform="rotate(20 146 286)" fill="${body}"/>
-    <ellipse cx="366" cy="286" rx="22" ry="32" transform="rotate(-20 366 286)" fill="${body}"/>
-    <path d="M 160 366 L 160 258 C 160 172 202 126 256 126 C 310 126 352 172 352 258 L 352 366
-             Q 328 336 304 366 Q 280 396 256 366 Q 232 336 208 366 Q 184 396 160 366 Z"
-          fill="${body}"/>
-    <path d="M 206 252 Q 220 266 234 252" stroke="${bg}" stroke-width="9" stroke-linecap="round" fill="none"/>
-    <path d="M 278 252 Q 292 266 306 252" stroke="${bg}" stroke-width="9" stroke-linecap="round" fill="none"/>
+  <path d="M 104 244
+           C 104 130 167 64 250 64 C 343 64 401 130 401 242
+           C 424 216 463 237 463 270 C 463 302 438 322 406 309
+           C 413 354 428 383 447 397 C 464 414 452 438 432 436
+           C 407 434 395 413 370 413 C 345 413 329 456 299 454
+           C 269 452 252 413 229 413 C 203 413 189 455 159 448
+           C 121 439 108 393 104 309
+           C 76 322 49 304 49 275 C 49 244 79 226 104 244 Z"
+        fill="${body}"/>
+  <g stroke="${bg}" stroke-width="20" stroke-linecap="round" fill="none">
+    <path d="M 156 221 Q 179 190 202 221"/>
+    <path d="M 296 221 Q 319 190 342 221"/>
   </g>
+  <path d="M 221 251 Q 251 261 281 251 Q 288 249 287 258
+           C 284 295 270 313 253 313 C 235 313 220 297 216 262
+           Q 214 250 221 251 Z" fill="${bg}"/>
+  <ellipse cx="252" cy="292" rx="19" ry="12" fill="${accent}"/>
 </svg>
 `;
 }
